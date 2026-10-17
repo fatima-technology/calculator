@@ -1,0 +1,1648 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sahi Jawab Math Solver</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500;1,9..144,700&family=Nunito:wght@400;600;700;800&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Light-only palette on purpose: the app always shows its bright theme, even on phones set to dark mode. */
+/* Layout: soft blush hero with a 3-step guide, rounded tool pills, then a question card with numbered fields, a rose-to-lilac answer slip and a notebook sheet with a rose margin for the worked solution. */
+:root{
+  --bg:#fffbfd; --bg2:#fbf8ff; --paper:#ffffff; --ink:#3a1d33; --muted:#86627a; --line:#f3e1ea; --rule:#faf0f5;
+  --accent:#c2406f; --accent-2:#7a5ac8; --accent-ink:#ffffff; --accent-soft:#fde6ef; --lilac-soft:#efe8fb; --margin:#e37aa0;
+  --ok:#2b8a66; --ok-soft:#e9f7f0; --ok-line:#bfe5d2; --err:#b3305a; --err-soft:#fdecf2; --err-line:#f3c3d4;
+  --shadow:0 8px 24px -18px rgba(150,40,90,.35); color-scheme:light;
+  --f-display:"Fraunces",Georgia,"Times New Roman",serif;
+  --f-ui:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-math:"STIX Two Text","Cambria Math",Cambria,"Times New Roman",serif;
+}
+
+[hidden]{display:none!important}
+.home{display:grid;gap:18px}
+.home-h{font-family:var(--f-display);font-weight:600;font-size:1.45rem;margin:0;letter-spacing:-.01em}
+.grp{display:grid;gap:10px}
+.grp h3{margin:0;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-2);font-weight:800}
+.tgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:620px){.tgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tcard{display:grid;justify-items:start;gap:3px;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:14px;cursor:pointer;color:var(--ink);font:inherit;box-shadow:var(--shadow);transition:transform .12s,border-color .12s}
+.tcard:hover{border-color:var(--accent)}
+.tcard:active{transform:scale(.97)}
+.tcard .ti{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-soft),var(--lilac-soft));color:var(--accent);font-family:var(--f-math);font-weight:600;font-size:1.05rem;margin-bottom:6px}
+.tcard b{font-size:1rem;line-height:1.2}
+.tcard small{font-size:.78rem;color:var(--muted);line-height:1.3}
+.toolbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.toolbar .wrap{display:flex;align-items:center;gap:12px;padding-block:9px}
+.back{flex:0 0 auto;border:1px solid var(--line);background:var(--paper);color:var(--accent);border-radius:999px;padding:8px 15px;font:inherit;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+.cur{display:flex;align-items:center;gap:8px;font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cur .ti{flex:0 0 auto;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-family:var(--f-math);font-size:.9rem}
+.panels{display:grid;gap:16px;min-width:0}
+.sublab{display:block;font-weight:700;font-size:.88rem;margin-bottom:6px}
+.mat{display:inline-block;vertical-align:middle;border-left:1.5px solid currentColor;border-right:1.5px solid currentColor;border-radius:6px;padding:2px 3px;margin:2px}
+.mat table{border-collapse:collapse}.mat td{padding:1px 8px;text-align:center;font-size:.92em;white-space:nowrap}
+sub{font-size:.68em;line-height:0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* hero */
+.hero{background:radial-gradient(120% 90% at 0% 0%,var(--accent-soft) 0%,transparent 60%),radial-gradient(90% 80% at 100% 10%,var(--lilac-soft) 0%,transparent 65%),var(--bg)}
+.hero .wrap{padding-block:22px 16px;display:grid;gap:14px}
+.brand{display:flex;align-items:center;gap:14px}
+.mark{flex:0 0 auto;width:54px;height:54px;border-radius:18px;background:linear-gradient(140deg,var(--accent),var(--accent-2));display:grid;place-items:center;box-shadow:var(--shadow)}
+.mark svg{width:32px;height:32px}
+h1{font-family:var(--f-display);font-weight:600;font-size:2.05rem;line-height:1;margin:0;letter-spacing:-.02em}
+h1 em{font-style:italic;font-weight:700;color:var(--accent)}
+.tag{margin:5px 0 0;color:var(--muted);font-size:.95rem}
+.guide{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.guide li{display:flex;align-items:center;gap:7px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 5px;font-size:.88rem;font-weight:700}
+.dot{flex:0 0 auto;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:.78rem;font-weight:800;font-family:var(--f-ui)}
+.dot.l{background:var(--accent-2)}
+/* tabs */
+.tabs-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:5px 14px 5px 5px;font:inherit;cursor:pointer;text-align:left}
+.tab .ti{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-family:var(--f-math);font-weight:600;font-size:1rem}
+.tab b{display:block;font-size:.9rem;line-height:1.1}
+.tab small{display:block;font-size:.7rem;color:var(--muted);line-height:1.2}
+.tab[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;color:var(--accent-ink);box-shadow:var(--shadow)}
+.tab[aria-selected="true"] .ti{background:var(--paper);color:var(--accent)}
+.tab[aria-selected="true"] small{color:var(--accent-ink);opacity:.85}
+/* cards & fields */
+main.wrap{padding-block:18px 28px;display:grid;gap:16px}
+.panel{display:grid;gap:16px;min-width:0}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px;display:grid;gap:16px;min-width:0;box-shadow:var(--shadow)}
+.card-h{display:flex;gap:12px;align-items:center}
+.card-h .ic{flex:0 0 auto;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--lilac-soft);color:var(--accent-2);font-family:var(--f-math);font-size:1.3rem;font-weight:600}
+.card h2{font-family:var(--f-display);font-size:1.4rem;margin:0;font-weight:600;letter-spacing:-.01em;line-height:1.15}
+.hint{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+label,.lab{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.95rem;margin-bottom:7px}
+.field{min-width:0}
+.help{margin:6px 2px 0;color:var(--muted);font-size:.85rem}
+.help b{color:var(--accent);font-family:var(--f-math);font-weight:600;font-size:1.05em}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.tin,select,textarea{width:100%;font:inherit;font-size:1.05rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.tin:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+textarea{min-height:90px;resize:vertical}
+.math-in{font-family:var(--f-math);font-size:1.3rem;padding-block:11px}
+.tin::placeholder{color:var(--muted);opacity:.7}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kbd{display:flex;flex-wrap:wrap;gap:7px}
+.kbd button{min-width:46px;height:44px;padding:0 9px;border-radius:13px;border:1px solid var(--line);background:var(--lilac-soft);color:var(--ink);font-family:var(--f-math);font-size:1.15rem;cursor:pointer;touch-action:manipulation}
+.kbd button:active{transform:scale(.95);background:var(--accent-soft)}
+.ex{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.ex>span{width:100%;font-size:.85rem;color:var(--muted);font-weight:700}
+.ex button{border:1px solid var(--line);background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:5px 12px;font-family:var(--f-math);font-size:1rem;cursor:pointer}
+.how{border:1px dashed var(--line);border-radius:16px;background:var(--bg)}
+.how summary{cursor:pointer;padding:10px 14px;font-weight:800;color:var(--accent-2);list-style:none;display:flex;align-items:center;gap:8px}
+.how summary::-webkit-details-marker{display:none}
+.how summary::after{content:"+";margin-left:auto;font-size:1.2rem;line-height:1}
+.how[open] summary::after{content:"−"}
+.how-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;padding:0 14px 14px}
+.how-g div{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:grid;gap:1px}
+.how-g b{font-family:var(--f-math);font-size:1.15rem;color:var(--accent);font-weight:600}
+.how-g span{font-size:.82rem;color:var(--muted)}
+.go{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--accent-ink);border:0;border-radius:16px;padding:15px 22px;font:inherit;font-weight:800;font-size:1.08rem;cursor:pointer;box-shadow:var(--shadow)}
+.go .dot{background:var(--paper);color:var(--accent)}
+.go:active{transform:translateY(1px)}
+/* results */
+.out{display:grid;gap:14px;min-width:0}
+.answer{background:linear-gradient(135deg,var(--accent-soft),var(--lilac-soft));border:1px solid var(--line);border-radius:22px;padding:16px 18px;min-width:0;box-shadow:var(--shadow)}
+.answer .lbl{display:flex;align-items:center;gap:8px;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:800}
+.ans{font-family:var(--f-math);font-size:1.6rem;line-height:1.55;overflow-x:auto;color:var(--ink);margin-top:4px}
+.ans-sub{font-family:var(--f-math);color:var(--muted);font-size:1.05rem;margin-top:4px;overflow-x:auto}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:22px;overflow:hidden;min-width:0;box-shadow:var(--shadow)}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--line);background:var(--bg)}
+.sheet-h h3{margin:0;font-family:var(--f-display);font-size:1.15rem;font-weight:600}
+.copy{border:1px solid var(--line);background:var(--paper);color:var(--accent);border-radius:999px;padding:6px 13px;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.steps{list-style:none;margin:0;padding:0;position:relative}
+.steps::before{content:"";position:absolute;left:48px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.45}
+.steps li{display:grid;grid-template-columns:48px minmax(0,1fr);column-gap:14px;padding:13px 18px 13px 0;border-bottom:1px solid var(--rule)}
+.no{justify-self:end;margin-right:10px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:.8rem;font-variant-numeric:tabular-nums}
+.sb{min-width:0;display:grid;gap:5px}
+.st{font-weight:800}
+.sm{font-family:var(--f-math);font-size:1.18rem;overflow-x:auto;padding-block:3px}
+.sl{font-size:.97rem;overflow-x:auto}
+.sn{font-size:.88rem;color:var(--muted)}
+.sa{font-size:.92rem;color:var(--muted);overflow-x:auto}
+.sa .math{color:var(--ink)}
+.check{padding:14px 18px 16px 62px;display:grid;gap:4px;background:var(--ok-soft);border-top:1px solid var(--ok-line)}
+.ck-h{font-weight:800;color:var(--ok)}
+.ck{font-size:.97rem;overflow-x:auto}
+.ap{color:var(--muted)}
+.math{font-family:var(--f-math);font-size:1.08em}
+.math i,.ans i,.sm i{font-style:italic}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.18;margin:0 .12em}
+.frac>.n{border-bottom:1.5px solid currentColor;padding:0 .22em .04em}
+.frac>.d{padding:.04em .22em 0}
+sup{font-size:.68em;line-height:0}
+.rep{text-decoration:overline}
+.rad{border-top:1.5px solid currentColor;padding-left:1px}
+.det{display:inline-block;vertical-align:middle;border-left:1.5px solid currentColor;border-right:1.5px solid currentColor;border-radius:2px;padding:0 3px;margin:0 2px}
+.det table{border-collapse:collapse}.det td{padding:0 6px;text-align:center;font-size:.92em}
+.tblw{overflow-x:auto;max-width:100%}
+.tbl{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.92rem;font-family:var(--f-ui)}
+.tbl th,.tbl td{border:1px solid var(--line);padding:5px 10px;text-align:right;white-space:nowrap}
+.tbl th{background:var(--accent-soft);font-weight:800}
+.err{background:var(--err-soft);color:var(--err);border:1px solid var(--err-line);border-radius:18px;padding:14px 18px}
+.err b{display:block;margin-bottom:2px}
+.err p{margin:0;color:var(--ink)}
+footer .wrap{padding-block:4px 34px;color:var(--muted);font-size:.86rem;text-align:center}
+footer p{margin:0 auto 6px;max-width:58ch}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head><body>
+
+
+<header class="hero"><div class="wrap">
+<div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 32 32"><g fill="#fff" fill-opacity=".92"><ellipse cx="16" cy="8" rx="5" ry="7"/><ellipse cx="16" cy="24" rx="5" ry="7"/><ellipse cx="8" cy="16" rx="7" ry="5"/><ellipse cx="24" cy="16" rx="7" ry="5"/></g><circle cx="16" cy="16" r="4.2" fill="#fff"/><text x="16" y="18.6" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="7.5" fill="#c2406f">x</text></svg></div>
+<div><h1>Sahi <em>Jawab</em></h1><p class="tag">Every math problem, solved step by step</p></div></div>
+<ol class="guide" id="guide" aria-label="How to use"><li><span class="dot">1</span>Pick a tool below</li><li><span class="dot">2</span>Type your question</li><li><span class="dot">3</span>See the solution</li></ol>
+</div></header>
+<div class="toolbar" id="toolbar" hidden><div class="wrap"><button type="button" id="back" class="back">‹ All tools</button><span id="cur" class="cur"></span></div></div>
+<main class="wrap" id="app"><div id="home" class="home"></div><div id="panels" class="panels"></div></main>
+<footer><div class="wrap">
+<p>Every answer is worked out in exact fractions and checked by putting it back into the question. If the app cannot understand a question, it tells you instead of giving a wrong answer.</p>
+<p>For word problems, write them as an equation first.</p>
+</div></footer>
+
+
+<script>
+'use strict';
+/*ENGINE START*/
+class MErr extends Error{}
+const B=BigInt, absB=a=>a<0n?-a:a;
+const gcdB=(a,b)=>{a=absB(a);b=absB(b);while(b){[a,b]=[b,a%b]}return a};
+const lcmB=(a,b)=>(a===0n||b===0n)?0n:absB(a/gcdB(a,b)*b);
+function isqrt(n){if(n<2n)return n;let x=1n<<(B(n.toString(2).length)/2n+1n);for(;;){const y=(x+n/x)>>1n;if(y>=x)return x;x=y}}
+const isSq=n=>n>=0n&&isqrt(n)**2n===n;
+function iroot(n,k){if(n<2n)return n;let lo=0n,hi=1n<<(B(n.toString(2).length)/k+1n);while(lo<hi){const m=(lo+hi+1n)>>1n;if(m**k<=n)lo=m;else hi=m-1n}return lo}
+const DIV0='You cannot divide by 0 — the answer is undefined (division by zero).';
+const PIERR='π is not supported here. Type 3.14 or 22/7, or use the Calculator or Geometry tool.';
+class Q{
+  constructor(n,d=1n){if(typeof n==='number')n=B(n);if(typeof d==='number')d=B(d);if(d===0n)throw new MErr(DIV0);if(d<0n){n=-n;d=-d}const g=gcdB(n,d);if(g>1n){n/=g;d/=g}this.n=n;this.d=d}
+  add(o){return new Q(this.n*o.d+o.n*this.d,this.d*o.d)}
+  sub(o){return new Q(this.n*o.d-o.n*this.d,this.d*o.d)}
+  mul(o){return new Q(this.n*o.n,this.d*o.d)}
+  div(o){if(o.n===0n)throw new MErr(DIV0);return new Q(this.n*o.d,this.d*o.n)}
+  neg(){return new Q(-this.n,this.d)}
+  inv(){return new Q(1n,1n).div(this)}
+  abs(){return this.n<0n?this.neg():this}
+  pow(k){if(k<0n)return this.inv().pow(-k);return new Q(this.n**k,this.d**k)}
+  get z(){return this.n===0n}
+  get int(){return this.d===1n}
+  sgn(){return this.n>0n?1:this.n<0n?-1:0}
+  eq(o){return this.n===o.n&&this.d===o.d}
+  cmp(o){const x=this.n*o.d-o.n*this.d;return x>0n?1:x<0n?-1:0}
+  num(){return parseFloat(decStr(this,18))}
+}
+const Z=new Q(0n),ONE=new Q(1n);
+const q=(n,d=1)=>new Q(B(n),B(d));
+const isQ=v=>v instanceof Q;
+const toF=v=>isQ(v)?v.num():v;
+function decStr(x,p=10){let n=x.n,d=x.d;const neg=n<0n;if(neg)n=-n;const sc=10n**B(p);const v=(n*sc*2n+d)/(2n*d);const s=v.toString().padStart(p+1,'0');const ip=s.slice(0,s.length-p),fp=s.slice(s.length-p).replace(/0+$/,'');let out=ip+(fp?'.'+fp:'');if(neg&&/[1-9]/.test(out))out='-'+out;return out}
+function qFromStr(s){s=s.trim();if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s))throw new MErr(`"${s}" is not a valid number.`);const neg=s[0]==='-';s=s.replace(/^[-+]/,'');const [i,f='']=s.split('.');const n=B((i||'0')+f);return new Q(neg?-n:n,10n**B(f.length))}
+function powQ(a,e){if(a.z&&e<0n)throw new MErr('0 to a negative power is undefined.');if(a.z&&e===0n)throw new MErr('0⁰ is undefined.');const sz=(a.n.toString().length+a.d.toString().length)*Number(absB(e));if(sz>20000)throw new MErr('The power is so large that the answer becomes too long.');return a.pow(e)}
+function sqrtQ(x){if(x.n<0n)return null;if(isSq(x.n)&&isSq(x.d))return new Q(isqrt(x.n),isqrt(x.d));return null}
+function surd(N){if(N===0n)return[0n,1n];let k=1n,m=1n,n=N;for(let p=2n;p*p<=n&&p<1000000n;p+=(p===2n?1n:2n)){let c=0n;while(n%p===0n){n/=p;c++}if(c){k*=p**(c/2n);if(c%2n)m*=p}}if(n>1n){if(isSq(n))k*=isqrt(n);else m*=n}return[k,m]}
+
+/* ---------- HTML helpers ---------- */
+const M=s=>`<span class="math">${s}</span>`;
+const fracH=(n,d)=>`<span class="frac"><span class="n">${n}</span><span class="d">${d}</span></span>`;
+const bi=n=>n<0n?'−'+(-n):''+n;
+const biP=n=>n<0n?`(${bi(n)})`:bi(n);
+function fraw(n,d){const neg=(n<0n)!==(d<0n)&&n!==0n;n=absB(n);d=absB(d);return(neg?'−':'')+(d===1n?`${n}`:fracH(n,d))}
+const fq=x=>fraw(x.n,x.d);
+const fqP=x=>x.n<0n?`(${fq(x)})`:fq(x);
+const trimZ=s=>s.includes('.')?s.replace(/0+$/,'').replace(/\.$/,''):s;
+function fmtF(v,sig=10){if(!isFinite(v))throw new MErr('The answer is too large or undefined.');if(Math.abs(v)<1e-12)v=0;const a=Math.abs(v);let s;if(a!==0&&(a<1e-6||a>=1e15)){const[m,e]=v.toExponential(8).split('e');s=`${trimZ(m)} × 10<sup>${(+e).toString().replace('-','−')}</sup>`}else{const dp=Math.max(0,sig-1-Math.max(0,Math.floor(Math.log10(a||1))));s=trimZ(v.toFixed(Math.min(dp,12)))}return s.replace(/^-/,'−')}
+const fmtD=(v,dp=4)=>{if(Math.abs(v)<1e-12)v=0;return trimZ(v.toFixed(dp)).replace(/^-/,'−')};
+const vH=v=>isQ(v)?fq(v):fmtF(v);
+const vHP=v=>(isQ(v)?v.n<0n:v<0)?`(${vH(v)})`:vH(v);
+function decInfo(x){let n=x.n,d=x.d;const neg=n<0n;if(neg)n=-n;const ip=n/d;let r=n%d;const sg=neg?'−':'';if(r===0n)return{html:sg+ip,term:true};const seen=new Map();let dg='';for(let i=0;i<40&&r!==0n&&!seen.has(r);i++){seen.set(r,i);r*=10n;dg+=(r/d);r%=d}if(r===0n)return{html:sg+ip+'.'+dg,term:true};if(seen.has(r)){const k=seen.get(r),per=dg.slice(k);if(per.length<=12)return{html:sg+ip+'.'+dg.slice(0,k)+`<span class="rep">${per}</span>`,term:false,rep:true}}return{html:'≈ '+decStr(x,10).replace('-','−'),term:false}}
+function mixedH(x){if(x.int||absB(x.n)<x.d)return null;const neg=x.n<0n,n=absB(x.n),w=n/x.d,r=n%x.d;return(neg?'−':'')+w+' '+fracH(r,x.d)}
+function nice(x,dp=4){const di=decInfo(x);if(x.int)return fq(x);if(di.term&&di.html.length<=14)return di.html;let a=decStr(x,dp);if(!/[1-9]/.test(a))a=fmtF(x.num(),4);return `${fq(x)} <span class="ap">(≈ ${a.replace('-','−')})</span>`}
+function surdH(k,m){if(k===0n)return'0';if(m===1n)return''+k;return(k===1n?'':''+k)+`√<span class="rad">${m}</span>`}
+
+/* ---------- tokenizer & parser ---------- */
+let ANG='deg';
+const FNAMES=['asin','acos','atan','sqrt','cbrt','sin','cos','tan','log','ln','exp','abs','ncr','npr'];
+function tokenize(src,opt={}){
+  let s=src.replace(/[×✕✖·∙]/g,'*').replace(/÷/g,'/').replace(/[−–—]/g,'-').replace(/\*\*/g,'^').replace(/²/g,'^2').replace(/³/g,'^3').replace(/√/g,'sqrt').replace(/∛/g,'cbrt').replace(/π/g,'pi').replace(/[\[{]/g,'(').replace(/[\]}]/g,')').toLowerCase()
+    .replace(/(sin|cos|tan)\s*(⁻¹|\^\s*\(\s*-\s*1\s*\)|\^\s*-\s*1)/g,'a$1').replace(/\|([^|]+)\|/g,'abs($1)');
+  const t=[];let i=0;
+  while(i<s.length){const c=s[i];
+    if(/\s/.test(c)){i++;continue}
+    if(/[0-9.]/.test(c)){const m=s.slice(i).match(/^(\d+\.?\d*|\.\d+)/);if(!m)throw new MErr(`Could not read the number: "${s.slice(i,i+6)}"`);t.push({k:'num',v:qFromStr(m[0])});i+=m[0].length;continue}
+    if(/[a-z]/.test(c)){
+      const f=FNAMES.find(n=>s.startsWith(n,i));if(f){t.push({k:'fn',v:f});i+=f.length;continue}
+      if(s.startsWith('pi',i)){t.push({k:'pi'});i+=2;continue}
+      if(opt.calc&&c==='e'){t.push({k:'e'});i++;continue}
+      t.push({k:'var',v:c});i++;continue}
+    if('+-*/^()=%,!°'.includes(c)){t.push({k:c});i++;continue}
+    throw new MErr(`Could not read this symbol: "${c}"`)}
+  const out=[];
+  for(const tk of t){const p=out[out.length-1];if(p&&['num','var','pi','e',')','%','!','°'].includes(p.k)&&['num','var','pi','e','fn','('].includes(tk.k))out.push({k:'*',imp:true});out.push(tk)}
+  return out}
+const ARITY={ncr:[2],npr:[2],log:[1,2]};
+function mkFn(name,args){const ar=ARITY[name]||[1];if(!ar.includes(args.length))throw new MErr(name==='ncr'||name==='npr'?`${name==='ncr'?'nCr':'nPr'} needs two numbers, e.g. ${name}(5, 2).`:`${name}( ) takes only one value.`);return{t:'fn',name,args,a:args[0]}}
+function parse(tokens){
+  let p=0;const peek=()=>tokens[p];
+  const eat=k=>{const t=tokens[p];if(!t||t.k!==k)throw new MErr(k===')'?'A bracket ")" is missing.':`Expected "${k}".`);p++;return t};
+  function expr(){let n=term();while(peek()&&(peek().k==='+'||peek().k==='-')){const op=tokens[p++].k;n={t:'bin',op,l:n,r:term()}}return n}
+  function term(){let n=unary();while(peek()&&(peek().k==='*'||peek().k==='/')){const tk=tokens[p++];n={t:'bin',op:tk.k,l:n,r:unary(),imp:!!tk.imp}}return n}
+  function unary(){if(peek()&&peek().k==='-'){p++;return{t:'neg',a:unary()}}if(peek()&&peek().k==='+'){p++;return unary()}return power()}
+  function power(){const b=postfix();if(peek()&&peek().k==='^'){p++;return{t:'bin',op:'^',l:b,r:unary()}}return b}
+  function postfix(){let n=primary();while(peek()&&['%','!','°'].includes(peek().k)){const k=tokens[p++].k;if(k==='%')n={t:'bin',op:'/',l:n,r:{t:'num',v:q(100)},pct:true};else n=mkFn(k==='!'?'fact':'deg',[n])}return n}
+  function primary(){const t=peek();if(!t)throw new MErr('The question is incomplete — something is missing.');
+    if(t.k==='num'){p++;return{t:'num',v:t.v}}
+    if(t.k==='var'){p++;return{t:'var',name:t.v}}
+    if(t.k==='pi'){p++;return{t:'pi'}}
+    if(t.k==='e'){p++;return{t:'e'}}
+    if(t.k==='fn'){p++;if(peek()&&peek().k==='('){p++;const args=[expr()];while(peek()&&peek().k===','){p++;args.push(expr())}eat(')');return mkFn(t.v,args)}return mkFn(t.v,[power()])}
+    if(t.k==='('){p++;const a=expr();eat(')');return a}
+    throw new MErr(`"${t.k}" is not in the right place.`)}
+  if(!tokens.length)throw new MErr('Type a question first.');
+  const n=expr();if(p<tokens.length)throw new MErr(tokens[p].k===')'?'There is one ")" too many.':`"${tokens[p].k}" could not be read here.`);return n}
+
+/* ---------- render a tree ---------- */
+function precOf(n){if(n.t==='num'){if(isQ(n.v))return n.v.n<0n?3:(n.v.d!==1n?4.5:6);return n.v<0?3:6}if(n.t==='neg')return 3;if(n.t==='bin')return{'+':1,'-':1,'*':2,'/':2,'^':5}[n.op];return 6}
+const FDISP={asin:'sin<sup>−1</sup>',acos:'cos<sup>−1</sup>',atan:'tan<sup>−1</sup>'};
+function R(n){
+  switch(n.t){
+    case'num':return vH(n.v);
+    case'var':return`<i>${n.name}</i>`;
+    case'pi':return'π';
+    case'e':return'<i>e</i>';
+    case'fn':{const A=n.args.map(R),a0=n.args[0],w=i=>precOf(n.args[i])>=6&&n.args[i].t!=='fn'?A[i]:`(${A[i]})`;
+      switch(n.name){
+        case'sqrt':return(precOf(a0)>=6&&a0.t!=='fn')?`√<span class="rad">${A[0]}</span>`:`√(${A[0]})`;
+        case'cbrt':return`∛(${A[0]})`;
+        case'abs':return`|${A[0]}|`;
+        case'fact':return w(0)+'!';
+        case'deg':return w(0)+'°';
+        case'ncr':return`<sup>${A[0]}</sup>C<sub>${A[1]}</sub>`;
+        case'npr':return`<sup>${A[0]}</sup>P<sub>${A[1]}</sub>`;
+        case'log':return n.args.length>1?`log<sub>${A[1]}</sub>(${A[0]})`:`log(${A[0]})`;
+        case'sin':case'cos':case'tan':return`${n.name}(${A[0]}${ANG==='deg'&&!(a0.t==='fn'&&a0.name==='deg')?'°':''})`;
+        case'exp':return`<i>e</i><sup>${A[0]}</sup>`;
+        default:return`${FDISP[n.name]||n.name}(${A[0]})`}}
+    case'neg':{const a=R(n.a),pa=precOf(n.a);return'−'+(pa<2||pa===3?`(${a})`:a)}
+    case'bin':{
+      const p=precOf(n);let L=R(n.l),Rr=R(n.r);const pl=precOf(n.l),pr=precOf(n.r);
+      if(n.pct)return(pl<6?`(${L})`:L)+'%';
+      if(n.op==='^'){if(pl<=5)L=`(${L})`;return`${L}<sup>${Rr}</sup>`}
+      if(n.op==='/'&&n.frac)return fracH(R(n.l),R(n.r));
+      if(pl<p)L=`(${L})`;
+      if(pr<p||pr===3||(pr===p&&(n.op==='-'||n.op==='/')))Rr=`(${Rr})`;
+      if(n.op==='*'&&(n.imp||n.auto)){
+        const ss=m=>['var','pi','e','fn'].includes(m.t)||(m.t==='bin'&&m.op==='^'&&ss(m.l))||(m.t==='bin'&&m.op==='*'&&(m.auto||m.imp)&&ss(m.l));
+        const rv=['var','pi','e','fn'].includes(n.r.t)||(n.r.t==='bin'&&n.r.op==='^'&&['var','pi','e'].includes(n.r.l.t))||(n.auto&&ss(n.r))||Rr.startsWith('(');
+        const lv=(n.l.t==='num'&&isQ(n.l.v)&&(n.l.v.int||n.auto)&&n.l.v.n>=0n)||(n.l.t==='bin'&&n.l.frac)||(n.l.t==='bin'&&n.l.op==='*'&&n.l.auto)||['var','pi','e'].includes(n.l.t)||(n.l.t==='bin'&&(n.l.op==='^'||(n.l.op==='*'&&n.l.imp)))||L.endsWith(')');
+        if(rv&&lv)return L+(n.r.t==='fn'&&!['sqrt','cbrt','abs','exp'].includes(n.r.name)&&n.l.t!=='num'?' ':'')+Rr}
+      return L+{'+':' + ','-':' − ','*':' × ','/':' ÷ '}[n.op]+Rr}}}
+function subst(n,map){switch(n.t){case'var':return map[n.name]!==undefined?{t:'num',v:map[n.name]}:{...n};case'neg':return{...n,a:subst(n.a,map)};case'fn':{const args=n.args.map(a=>subst(a,map));return{...n,args,a:args[0]}}case'bin':return{...n,l:subst(n.l,map),r:subst(n.r,map)};default:return{...n}}}
+
+/* ================= CALCULATOR ================= */
+function doBin(op,a,b){
+  const A=vHP(a),Bv=vHP(b),lines=[],exact=isQ(a)&&isQ(b);
+  if(op==='+'||op==='-'){
+    const sym=op==='+'?'+':'−',title=op==='+'?'Addition':'Subtraction';
+    if(!exact){const r=op==='+'?toF(a)+toF(b):toF(a)-toF(b);return{v:r,title,main:`${A} ${sym} ${Bv} ≈ ${fmtF(r)}`}}
+    const r=op==='+'?a.add(b):a.sub(b);
+    if(a.d!==1n||b.d!==1n){
+      if(a.d===b.d){const raw=op==='+'?a.n+b.n:a.n-b.n;lines.push(`The denominators are the same (${a.d}), so just ${op==='+'?'add':'subtract'} the numerators: ${M(fraw(raw,a.d))}`);const g=gcdB(raw,a.d);if(g>1n&&raw!==0n)lines.push(`Simplify (divide top and bottom by ${g}): ${M(fq(r))}`)}
+      else{const L=lcmB(a.d,b.d),n1=a.n*(L/a.d),n2=b.n*(L/b.d),raw=op==='+'?n1+n2:n1-n2;
+        lines.push(`LCM of the denominators ${a.d} and ${b.d} = ${L}`);
+        lines.push(`Rewrite both with the same denominator: ${M(`${fq(a)} = ${fraw(n1,L)}, &nbsp; ${fq(b)} = ${fraw(n2,L)}`)}`);
+        lines.push(`${op==='+'?'Add':'Subtract'} the numerators: ${M(`${fraw(n1,L)} ${sym} ${n2<0n?`(${fraw(n2,L)})`:fraw(n2,L)} = ${fraw(raw,L)}`)}`);
+        const g=gcdB(raw,L);if(g>1n&&raw!==0n)lines.push(`Simplify (divide top and bottom by ${g}): ${M(`${fraw(raw,L)} = ${fq(r)}`)}`)}}
+    return{v:r,title,main:`${A} ${sym} ${Bv} = ${fq(r)}`,lines}}
+  if(op==='*'){
+    if(!exact){const r=toF(a)*toF(b);return{v:r,title:'Multiplication',main:`${A} × ${Bv} ≈ ${fmtF(r)}`}}
+    const r=a.mul(b);
+    if(a.d!==1n||b.d!==1n){const rn=a.n*b.n,rd=a.d*b.d;lines.push(`Numerator × numerator, denominator × denominator: ${M(`${fracH(`${biP(a.n)} × ${biP(b.n)}`,`${a.d} × ${b.d}`)} = ${fraw(rn,rd)}`)}`);const g=gcdB(rn,rd);if(g>1n&&rn!==0n)lines.push(`Simplify (divide top and bottom by ${g}): ${M(fq(r))}`)}
+    return{v:r,title:'Multiplication',main:`${A} × ${Bv} = ${fq(r)}`,lines}}
+  if(op==='/'){
+    if(isQ(b)?b.z:b===0)throw new MErr(DIV0);
+    if(!exact){const r=toF(a)/toF(b);return{v:r,title:'Division',main:`${A} ÷ ${Bv} ≈ ${fmtF(r)}`}}
+    const r=a.div(b);
+    if(a.int&&b.int){if(!r.int){lines.push(`It does not divide exactly, so write it as a fraction: ${M(fraw(a.n,b.n))}`);const g=gcdB(a.n,b.n);if(g>1n)lines.push(`Simplify (divide top and bottom by ${g}): ${M(fq(r))}`)}}
+    else{const rec=b.inv();lines.push(`Dividing by a fraction = multiplying by its reciprocal: ${M(`${A} ÷ ${Bv} = ${A} × ${vHP(rec)}`)}`);const rn=a.n*rec.n,rd=a.d*rec.d;lines.push(M(`${fracH(`${biP(a.n)} × ${biP(rec.n)}`,`${a.d} × ${rec.d}`)} = ${fraw(rn,rd)}${gcdB(rn,rd)>1n&&rn!==0n?' = '+fq(r):''}`))}
+    return{v:r,title:'Division',main:`${A} ÷ ${Bv} = ${fq(r)}`,lines}}
+  if(op==='^'){
+    const title='Power';
+    if(exact&&b.int){const e=b.n;
+      const r=powQ(a,e);
+      if(e<0n)lines.push(`A negative power means the reciprocal: ${M(`${A}<sup>${bi(e)}</sup> = ${fracH('1',`${A}<sup>${-e}</sup>`)}`)}`);
+      const ae=absB(e);
+      if(ae>=2n&&ae<=6n&&(a.n.toString().length+a.d.toString().length)<8)lines.push(M(`${Array(Number(ae)).fill(A).join(' × ')} = ${fq(a.pow(ae))}`));
+      if(a.d!==1n&&ae>0n)lines.push(`The power applies to both top and bottom: ${M(fracH(`${biP(a.n)}<sup>${ae}</sup>`,`${a.d}<sup>${ae}</sup>`)+' = '+fq(a.pow(ae)))}`);
+      return{v:r,title,main:`${A}<sup>${bi(e)}</sup> = ${fq(r)}`,lines}}
+    if(exact&&!b.int&&b.d<=60n){
+      let base=a,neg=false;
+      if(a.n<0n){if(b.d%2n===0n)throw new MErr('An even root (like √) of a negative number is not a real number.');neg=true;base=a.neg()}
+      const rn=iroot(base.n,b.d),rd=iroot(base.d,b.d);
+      if(rn**b.d===base.n&&rd**b.d===base.d){const root=new Q(neg?-rn:rn,rd);const r=powQ(root,b.n);
+        lines.push(`Power ${fq(b)} means: first the ${b.d===2n?'square root':b.d+'th root'}, then the power ${bi(b.n)}`);
+        lines.push(M(`${b.d===2n?'':`<sup>${b.d}</sup>`}√(${vH(a)}) = ${fq(root)}, &nbsp; ${fqP(root)}<sup>${bi(b.n)}</sup> = ${fq(r)}`));
+        return{v:r,title,main:`${A}<sup>${fq(b)}</sup> = ${fq(r)}`,lines}}}
+    const r=Math.pow(toF(a),toF(b));
+    if(isNaN(r))throw new MErr('This is not a real number (negative base with a fractional power).');
+    return{v:r,title,main:`${A}<sup>${vH(b)}</sup> ≈ ${fmtF(r)}`,lines:['There is no exact fraction answer, so an approximate decimal is given.']}}
+}
+function doSqrt(a){
+  const A=vH(a),title='Square root';
+  if(isQ(a)){
+    if(a.n<0n)throw new MErr(`The negative number ${A.replace(/<[^>]+>/g,'')} has no real square root.`);
+    const r=sqrtQ(a);
+    if(r)return{v:r,title,main:`√(${A}) = ${fq(r)}`,lines:[a.int?`Because ${M(`${fq(r)} × ${fq(r)} = ${A}`)}`:`Take the root of top and bottom separately: ${M(`${fracH(`√${a.n}`,`√${a.d}`)} = ${fq(r)}`)}`]};
+    const[k,m]=surd(a.n*a.d);const c=new Q(k,a.d);const sH=(c.eq(ONE)?'':fq(c))+`√<span class="rad">${m}</span>`;const v=Math.sqrt(a.num());
+    return{v,title,main:`√(${A}) = ${sH} ≈ ${fmtF(v)}`,lines:[`${A} is not a perfect square, so the exact answer is the surd ${M(sH)}; the rest is worked in decimals.`]}}
+  if(a<0)throw new MErr('A negative number has no real square root.');
+  const v=Math.sqrt(a);return{v,title,main:`√(${A}) ≈ ${fmtF(v)}`}}
+function prepass(n){
+  if(n.t==='neg')prepass(n.a);
+  if(n.t==='fn')n.args.forEach(prepass);
+  if(n.t==='bin'){prepass(n.l);prepass(n.r)}
+  if(n.t==='neg'&&n.a.t==='num'){const v=n.a.v;setNum(n,isQ(v)?v.neg():-v)}
+  if(n.t==='bin'&&n.op==='/'&&!n.pct&&n.l.t==='num'&&n.r.t==='num'&&isQ(n.l.v)&&isQ(n.r.v)&&n.l.v.int&&n.r.v.int&&n.r.v.n>1n&&n.l.v.n>=0n&&gcdB(n.l.v.n,n.r.v.n)===1n)setNum(n,new Q(n.l.v.n,n.r.v.n))}
+function setNum(n,v){for(const k of Object.keys(n))delete n[k];n.t='num';n.v=v}
+function findRed(n){if(n.t==='num'||n.t==='var')return null;if(n.t==='pi'||n.t==='e')return n;if(n.t==='neg')return findRed(n.a)||(n.a.t==='num'?n:null);if(n.t==='fn'){for(const a of n.args){const r=findRed(a);if(r)return r}return n.args.every(a=>a.t==='num')?n:null}if(n.t==='bin')return findRed(n.l)||findRed(n.r)||(n.l.t==='num'&&n.r.t==='num'?n:null);return null}
+function fEval(n,st){let v;switch(n.t){case'num':v=toF(n.v);break;case'pi':v=Math.PI;break;case'e':v=Math.E;break;case'neg':v=-fEval(n.a,st);break;
+  case'fn':{const a=n.args.map(x=>fEval(x,st)),k=ANG==='deg'?Math.PI/180:1;switch(n.name){case'sqrt':v=Math.sqrt(a[0]);break;case'cbrt':v=Math.cbrt(a[0]);break;case'abs':v=Math.abs(a[0]);break;case'fact':v=1;for(let i=2;i<=a[0];i++)v*=i;break;case'ncr':v=1;for(let i=1;i<=a[1];i++)v=v*(a[0]-a[1]+i)/i;break;case'npr':v=1;for(let i=0;i<a[1];i++)v*=a[0]-i;break;case'sin':v=Math.sin(a[0]*k);break;case'cos':v=Math.cos(a[0]*k);break;case'tan':v=Math.tan(a[0]*k);break;case'asin':v=Math.asin(a[0])/k;break;case'acos':v=Math.acos(a[0])/k;break;case'atan':v=Math.atan(a[0])/k;break;case'log':v=Math.log(a[0])/Math.log(a.length>1?a[1]:10);break;case'ln':v=Math.log(a[0]);break;case'exp':v=Math.exp(a[0]);break;case'deg':v=ANG==='deg'?a[0]:a[0]*Math.PI/180;break}break}
+  case'bin':{const a=fEval(n.l,st),b=fEval(n.r,st);v=n.op==='+'?a+b:n.op==='-'?a-b:n.op==='*'?a*b:n.op==='/'?a/b:Math.pow(a,b)}}if(isFinite(v))st.mx=Math.max(st.mx,Math.abs(v));return v}
+
+/* ================= SCIENTIFIC FUNCTIONS ================= */
+function trigExact(name,x){
+  const full=360n*x.d;const r=new Q(((x.n%full)+full)%full,x.d);
+  if(!r.int)return null;const d=Number(r.n);if(d%30!==0&&d%45!==0)return null;
+  const S={0:null,30:[1n,1n,2n],45:[1n,2n,2n],60:[1n,3n,2n],90:[1n,1n,1n]};
+  const sinOf=g=>{let s=1,ref;if(g<=90)ref=g;else if(g<=180)ref=180-g;else if(g<=270){ref=g-180;s=-1}else{ref=360-g;s=-1}const e=S[ref];return e?{s,k:e[0],m:e[1],den:e[2]}:{s:0}};
+  const cosOf=g=>sinOf((g+90)%360);
+  let val;
+  if(name==='sin')val=sinOf(d);else if(name==='cos')val=cosOf(d);
+  else{const sv=sinOf(d),cv=cosOf(d);if(cv.s===0)throw new MErr(`tan ${d}° is undefined, because cos ${d}° = 0.`);if(sv.s===0)val={s:0};else{const[kk,mm]=surd(sv.m*cv.m);const K=sv.k*cv.den*kk,D=sv.den*cv.k*cv.m,g=gcdB(K,D);val={s:sv.s*cv.s,k:K/g,m:mm,den:D/g}}}
+  if(val.s===0)return{q:Z,html:'0'};
+  const f=val.s*Number(val.k)*Math.sqrt(Number(val.m))/Number(val.den);
+  if(val.m===1n){const qq=new Q(B(val.s)*val.k,val.den);return{q:qq,html:fq(qq),f}}
+  const core=(val.k===1n?'':''+val.k)+`√<span class="rad">${val.m}</span>`;
+  return{html:(val.s<0?'−':'')+(val.den===1n?core:fracH(core,val.den)),f}}
+function intArg(x,what){if(!isQ(x)||!x.int||x.n<0n)throw new MErr(`${what} only works for 0 or positive whole numbers.`);return x.n}
+function fnApply(name,vals){
+  const x=vals[0],X=vH(x);
+  switch(name){
+    case'sqrt':return doSqrt(x);
+    case'deg':{if(ANG==='deg')return{v:x,silent:true};const v=toF(x)*Math.PI/180;return{v,title:'Degrees → radians',main:`${X}° = ${X} × ${fracH('π','180')} ≈ ${fmtF(v)}`}}
+    case'abs':{const v=isQ(x)?x.abs():Math.abs(x);return{v,title:'Absolute value |x|',main:`|${X}| = ${vH(v)}`,lines:['Absolute value = distance from 0, always positive or 0.']}}
+    case'cbrt':{if(isQ(x)){const neg=x.n<0n,n=absB(x.n),rn=iroot(n,3n),rd=iroot(x.d,3n);if(rn**3n===n&&rd**3n===x.d){const r=new Q(neg?-rn:rn,rd);return{v:r,title:'Cube root (∛)',main:`∛(${X}) = ${fq(r)}`,lines:[`Because ${M(`${fqP(r)} × ${fqP(r)} × ${fqP(r)} = ${X}`)}`]}}}const v=Math.cbrt(toF(x));return{v,title:'Cube root (∛)',main:`∛(${X}) ≈ ${fmtF(v)}`,lines:['Not a perfect cube, so the answer is a decimal.']}}
+    case'fact':{const n=intArg(x,'Factorial (!)');if(n>500n)throw new MErr('Factorials above 500! are not supported.');let r=1n;for(let i=2n;i<=n;i++)r*=i;const lines=[];if(n===0n)lines.push('Rule: 0! = 1');else if(n<=12n&&n>1n)lines.push(M(`${n}! = ${Array.from({length:Number(n)},(_,i)=>Number(n)-i).join(' × ')} = ${r}`));return{v:new Q(r),title:'Factorial (!)',main:`${n}! = ${r}`,lines}}
+    case'ncr':case'npr':{const n=intArg(vals[0],'n'),r=intArg(vals[1],'r');if(r>n)throw new MErr('r cannot be larger than n.');if(n>3000n)throw new MErr('n is supported up to 3000.');let res=1n;
+      if(name==='npr'){for(let i=0n;i<r;i++)res*=n-i}else{const k=r<n-r?r:n-r;for(let i=1n;i<=k;i++)res=res*(n-k+i)/i}
+      const lines=[];const top=Array.from({length:Number(r)},(_,i)=>''+(n-B(i))).join(' × ')||'1';
+      if(r<=8n)lines.push(M(name==='ncr'?`= ${fracH(top,Array.from({length:Number(r)},(_,i)=>''+(r-B(i))).join(' × ')||'1')} = ${res}`:`= ${top} = ${res}`));
+      lines.push(name==='ncr'?'nCr = number of ways to choose (order does not matter).':'nPr = number of arrangements (order matters).');
+      return{v:new Q(res),title:name==='ncr'?'Combination (nCr)':'Permutation (nPr)',main:name==='ncr'?`<sup>${n}</sup>C<sub>${r}</sub> = ${fracH(`${n}!`,`${r}! × (${n} − ${r})!`)}`:`<sup>${n}</sup>P<sub>${r}</sub> = ${fracH(`${n}!`,`(${n} − ${r})!`)}`,lines}}
+    case'sin':case'cos':case'tan':{
+      if(ANG==='deg'&&isQ(x)){const ex=trigExact(name,x);if(ex){if(ex.q)return{v:ex.q,title:`${name} (standard angle)`,main:`${name} ${X}° = ${ex.html}`,lines:['This is the exact value for a standard angle (from the trig table).']};return{v:ex.f,title:`${name} (standard angle)`,main:`${name} ${X}° = ${ex.html} ≈ ${fmtF(ex.f)}`,lines:[`The exact value is ${M(ex.html)}; the rest is worked in decimals.`]}}}
+      if(ANG==='rad'&&isQ(x)&&x.z){const v=name==='cos'?ONE:Z;return{v,title:name,main:`${name}(0) = ${fq(v)}`}}
+      const rad=ANG==='deg'?toF(x)*Math.PI/180:toF(x);if(name==='tan'&&Math.abs(Math.cos(rad))<1e-12)throw new MErr('tan is undefined here (cos = 0).');let v=Math[name](rad);if(Math.abs(v)<1e-13)v=0;
+      return{v,title:name,main:`${name}(${X}${ANG==='deg'?'°':' rad'}) ≈ ${fmtF(v)}`,lines:[ANG==='deg'?'Angle taken in degrees.':'Angle taken in radians.']}}
+    case'asin':case'acos':case'atan':{
+      const f=toF(x),nm=FDISP[name];if(name!=='atan'&&(f<-1||f>1))throw new MErr(`${name.slice(1)}⁻¹ only works for values from −1 to 1.`);
+      if(ANG==='deg'&&isQ(x)){const map={asin:{'0':0,'1/2':30,'-1/2':-30,'1':90,'-1':-90},acos:{'1':0,'1/2':60,'0':90,'-1/2':120,'-1':180},atan:{'0':0,'1':45,'-1':-45}}[name];const key=x.int?''+x.n:x.n+'/'+x.d;if(key in map){const r=q(map[key]);return{v:r,title:nm.replace(/<[^>]+>/g,'')+' (standard angle)',main:`${nm}(${X}) = ${fq(r)}°`,lines:['Standard angle — exact answer.']}}}
+      let v=Math[name](f);if(ANG==='deg')v=v*180/Math.PI;const sn=Math.round(v);if(Math.abs(v-sn)<1e-9)v=sn;
+      return{v,title:'Inverse '+name.slice(1),main:`${nm}(${X}) ≈ ${fmtF(v)}${ANG==='deg'?'°':' rad'}`}}
+    case'log':{const b=vals[1]!==undefined?vals[1]:q(10);if(toF(x)<=0)throw new MErr('log only works for positive numbers.');if(toF(b)<=0||(isQ(b)&&b.eq(ONE)))throw new MErr('The log base must be positive and not 1.');
+      const bH=vH(b);if(isQ(x)&&isQ(b)){const k=Math.round(Math.log(toF(x))/Math.log(toF(b)));if(isFinite(k)&&Math.abs(k)<=2000){try{if(powQ(b,B(k)).eq(x))return{v:q(k),title:'Logarithm',main:`log<sub>${bH}</sub>(${X}) = ${k}`,lines:[`Because ${M(`${vHP(b)}<sup>${k}</sup> = ${X}`)}`]}}catch(e){}}}
+      const v=Math.log(toF(x))/Math.log(toF(b));return{v,title:'Logarithm',main:`log<sub>${bH}</sub>(${X}) ≈ ${fmtF(v)}`,lines:[`Meaning: ${bH} to what power = ${X}`]}}
+    case'ln':{if(toF(x)<=0)throw new MErr('ln only works for positive numbers.');if(isQ(x)&&x.eq(ONE))return{v:Z,title:'Natural log (ln)',main:'ln(1) = 0',lines:['Because e⁰ = 1']};const v=Math.log(toF(x));return{v,title:'Natural log (ln)',main:`ln(${X}) ≈ ${fmtF(v)}`,lines:['ln = log base e (e ≈ 2.71828)']}}
+    case'exp':{if(isQ(x)&&x.z)return{v:ONE,title:'Exponential',main:'<i>e</i><sup>0</sup> = 1'};const v=Math.exp(toF(x));if(!isFinite(v))throw new MErr('The answer is too large.');return{v,title:'Exponential',main:`<i>e</i><sup>${X}</sup> ≈ ${fmtF(v)}`}}
+  }
+  throw new MErr('This function was not understood.')}
+function solveCalc(src){
+  if(!src.trim())throw new MErr('Type a question first, e.g. 3/4 + 5/6');
+  const s=src.replace(/(\d|\))\s*[xX]\s*(?=[\d(.])/g,'$1*');
+  const toks=tokenize(s,{calc:true});
+  if(toks.some(t=>t.k==='='))throw new MErr('Solve questions with "=" in the Equation tool.');
+  const vv=toks.find(t=>t.k==='var');if(vv)throw new MErr(`"${vv.v}" was not understood. Use the Equation tool for questions with a variable (x). Functions that work here: sin, cos, tan, log, ln, √, ∛, !, nCr, nPr.`);
+  const tree=parse(toks);prepass(tree);
+  const st={mx:1};const fv=fEval(tree,st);
+  const steps=[{t:'Question (as understood)',m:R(tree),n:'Order: brackets and functions first, then powers, then ÷ ×, then + − (BODMAS).'}];
+  let guard=0;
+  while(tree.t!=='num'){
+    if(++guard>400)throw new MErr('The question is too long — split it into smaller parts.');
+    const n=findRed(tree);let res;
+    if(n.t==='neg'){const v=n.a.v;setNum(n,isQ(v)?v.neg():-v);continue}
+    if(n.t==='pi')res={v:Math.PI,title:'Value of π',main:'π ≈ 3.14159265359',lines:['π is irrational, so the answer is an approximate decimal.']};
+    else if(n.t==='e')res={v:Math.E,title:'Value of e',main:'<i>e</i> ≈ 2.718281828',lines:['e is irrational, so the answer is a decimal.']};
+    else if(n.t==='fn'){res=fnApply(n.name,n.args.map(a=>a.v));if(res.silent){setNum(n,res.v);continue}}
+    else if(n.pct){const v=isQ(n.l.v)?n.l.v.div(q(100)):toF(n.l.v)/100;res={v,title:'Percent',main:`${vH(n.l.v)}% = ${vHP(n.l.v)} ÷ 100 = ${vH(v)}`}}
+    else res=doBin(n.op,n.l.v,n.r.v);
+    setNum(n,res.v);
+    steps.push({t:res.title,m:res.main,lines:res.lines,after:tree.t==='num'?null:R(tree)});
+  }
+  const v=tree.v;
+  if(isFinite(fv)&&Math.abs(toF(v)-fv)>1e-9*Math.max(1,st.mx))throw new MErr('The internal check failed — the answer is not certain, so it is not shown.');
+  let answer,sub='';
+  if(isQ(v)){answer=fq(v);const mx=mixedH(v);const di=decInfo(v);const parts=[];if(mx)parts.push('Mixed: '+mx);if(!v.int)parts.push('Decimal: '+di.html+(di.rep?' (digits under the bar repeat)':''));sub=parts.join(' &nbsp;·&nbsp; ')}
+  else{answer='≈ '+fmtF(v);sub='Decimal answer (approximate, accurate to 10 digits)'}
+  return{answer,sub,steps}}
+
+/* ================= EQUATION (one variable) ================= */
+const P={
+  trim(a){a=a.slice();while(a.length>1&&a[a.length-1].z)a.pop();return a},
+  add(a,b){const r=[];for(let i=0;i<Math.max(a.length,b.length);i++)r.push((a[i]||Z).add(b[i]||Z));return P.trim(r)},
+  neg(a){return a.map(x=>x.neg())},
+  sub(a,b){return P.add(a,P.neg(b))},
+  mul(a,b){const r=Array(a.length+b.length-1).fill(Z);for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++)r[i+j]=r[i+j].add(a[i].mul(b[j]));return P.trim(r)},
+  ev(a,x){let r=Z;for(let i=a.length-1;i>=0;i--)r=r.mul(x).add(a[i]);return r},
+  isZ(a){return a.length===1&&a[0].z}};
+function evalPoly(n,v){
+  switch(n.t){
+    case'num':if(!isQ(n.v))throw new MErr('Could not read the number.');return[n.v];
+    case'var':if(n.name!==v)throw new MErr(`Variable "${n.name}" was not expected here.`);return[Z,ONE];
+    case'pi':throw new MErr(PIERR);
+    case'neg':return P.neg(evalPoly(n.a,v));
+    case'fn':{if(n.name==='sqrt'){const a=evalPoly(n.args[0],v);if(a.length>1)throw new MErr('Equations with a variable inside √ are not supported yet.');if(a[0].n<0n)throw new MErr('A negative number has no real square root.');const r=sqrtQ(a[0]);if(!r)throw new MErr(`√${fq(a[0]).replace(/<[^>]+>/g,'')} has no exact value (not a perfect square). Type its decimal value or use the Calculator.`);return[r]}const as=n.args.map(x=>evalPoly(x,v));if(as.some(a=>a.length>1))throw new MErr('A variable inside a function (sin, log, ! …) is not supported.');const r=fnApply(n.name,as.map(a=>a[0]));if(!isQ(r.v))throw new MErr('This function does not give an exact number — find its value in the Calculator first and type that.');return[r.v]}
+    case'e':throw new MErr('e is not supported here — use the Calculator.');
+    case'bin':{const a=evalPoly(n.l,v),b=evalPoly(n.r,v);
+      if(n.op==='+')return P.add(a,b);
+      if(n.op==='-')return P.sub(a,b);
+      if(n.op==='*'){const r=P.mul(a,b);if(r.length>13)throw new MErr('Degree above 12 is not supported.');return r}
+      if(n.op==='/'){if(b.length>1)throw new MErr('The variable is in the denominator. First multiply both sides by it, e.g. 6/x = 2 → 6 = 2x.');if(b[0].z)throw new MErr(DIV0);const iv=b[0].inv();return a.map(c=>c.mul(iv))}
+      if(n.op==='^'){if(b.length>1)throw new MErr('A variable in the power is not supported.');const e=b[0];if(!e.int)throw new MErr('The power must be a whole number (like 2, 3).');if(a.length===1)return[powQ(a[0],e.n)];if(e.n<0n)throw new MErr('Negative powers of the variable are not supported.');if(e.n>12n)throw new MErr('Powers up to 12 are supported.');let r=[ONE];for(let k=0n;k<e.n;k++)r=P.mul(r,a);if(r.length>13)throw new MErr('Degree above 12 is not supported.');return r}}}}
+const xpH=(v,k)=>`<i>${v}</i>`+(k>1?`<sup>${k}</sup>`:'');
+function termH(c,v,k){if(k===0)return fq(c);const s=c.eq(ONE)?'':c.eq(ONE.neg())?'−':fq(c);return s+xpH(v,k)}
+function fpoly(a,v){let s='';for(let i=a.length-1;i>=0;i--){const c=a[i];if(c.z)continue;const neg=c.n<0n,ab=c.abs();const core=i===0?fq(ab):(ab.eq(ONE)?'':fq(ab))+xpH(v,i);s+=s===''?(neg?'−':'')+core:(neg?' − ':' + ')+core}return s||'0'}
+const toQs=c=>c.map(x=>new Q(x));
+const fpolyB=(c,v)=>fpoly(toQs(c),v);
+function factorH(p,qq,v){const x=(qq===1n?'':''+qq)+`<i>${v}</i>`;if(p===0n)return x;return`(${x} ${p>0n?'−':'+'} ${absB(p)})`}
+function divisors(n){n=absB(n);if(n>100000000000000n)return null;const N=Number(n),ds=[];for(let i=1;i*i<=N;i++)if(N%i===0){ds.push(B(i));if(i*i!==N)ds.push(B(N/i))}return ds.sort((a,b)=>a<b?-1:a>b?1:0)}
+const cadd=(a,b)=>[a[0]+b[0],a[1]+b[1]],csub=(a,b)=>[a[0]-b[0],a[1]-b[1]],cmul=(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]];
+const cdiv=(a,b)=>{const d=b[0]*b[0]+b[1]*b[1];return[(a[0]*b[0]+a[1]*b[1])/d,(a[1]*b[0]-a[0]*b[1])/d]};
+function cEv(c,x){let r=[0,0];for(let i=c.length-1;i>=0;i--)r=cadd(cmul(r,x),[c[i],0]);return r}
+function dk(c){const n=c.length-1,a=c.map(x=>x/c[n]);let R0=1;for(let i=0;i<n;i++)R0=Math.max(R0,1+Math.abs(a[i]));let z=[];for(let i=0;i<n;i++){const t=2*Math.PI*i/n+0.4;z.push([R0*0.9*Math.cos(t),R0*0.9*Math.sin(t)])}
+  for(let it=0;it<6000;it++){let mx=0;for(let i=0;i<n;i++){let den=[1,0];for(let j=0;j<n;j++)if(j!==i)den=cmul(den,csub(z[i],z[j]));const d=cdiv(cEv(a,z[i]),den);z[i]=csub(z[i],d);mx=Math.max(mx,Math.hypot(d[0],d[1]))}if(mx<1e-15)break}
+  for(let i=0;i<n;i++){for(let k=0;k<20;k++){let dp=[0,0];for(let j=n;j>=1;j--)dp=cadd(cmul(dp,z[i]),[j*a[j],0]);const f=cEv(a,z[i]);if(Math.hypot(dp[0],dp[1])<1e-300)break;z[i]=csub(z[i],cdiv(f,dp))}}
+  return z}
+function pmH(Bn,K,m,d,im,sign){const rad=(im&&K===1n&&m===1n)?'<i>i</i>':surdH(K,m)+(im?'<i>i</i>':'');const s=sign===0?'±':sign>0?'+':'−';let num;if(Bn===0n)num=(sign<0?'−':sign===0?'±':'')+rad;else num=`${bi(Bn)} ${s} ${rad}`;return d===1n?num:fracH(num,d)}
+function quadSteps(a,b,c,v,steps,roots){
+  const x=`<i>${v}</i>`;
+  steps.push({t:'Identify a, b, c',m:`${fpolyB([c,b,a],v)} = 0`,n:`a${x}² + b${x} + c = 0 — compare: a = ${bi(a)}, b = ${bi(b)}, c = ${bi(c)}`});
+  const D=b*b-4n*a*c,f=4n*a*c,den=2n*a;
+  steps.push({t:'Discriminant (D)',m:`D = b<sup>2</sup> − 4ac = ${biP(b)}<sup>2</sup> − 4(${bi(a)})(${bi(c)}) = ${bi(b*b)} ${f>=0n?'−':'+'} ${absB(f)} = ${bi(D)}`,n:D>0n?'D > 0 → two different real roots.':D===0n?'D = 0 → one repeated root.':'D < 0 → no real roots; the roots are complex.'});
+  const fH=`${x} = ${fracH('−b ± √D','2a')} = ${fracH(`${bi(-b)} ± √${D<0n?`(${bi(D)})`:bi(D)}`,`2(${bi(a)})`)}`;
+  if(D>0n&&isSq(D)){const s=isqrt(D),x1=new Q(-b+s,den),x2=new Q(-b-s,den);
+    steps.push({t:'Quadratic formula',m:`${fH} = ${fracH(`${bi(-b)} ± ${s}`,den)}`,n:`√${D} = ${s}`});
+    steps.push({t:'Both roots',m:`${x} = ${fracH(`${bi(-b)} + ${s}`,den)} = ${fq(x1)} &nbsp; or &nbsp; ${x} = ${fracH(`${bi(-b)} − ${s}`,den)} = ${fq(x2)}`});
+    const k=a/(x1.d*x2.d);steps.push({t:'Factor form (to confirm)',m:`${k===1n?'':bi(k)}${factorH(x1.n,x1.d,v)}${factorH(x2.n,x2.d,v)} = 0`});
+    roots.push({k:'q',q:x1,mult:1},{k:'q',q:x2,mult:1});return}
+  if(D===0n){const r=new Q(-b,den);steps.push({t:'Quadratic formula (√0 = 0)',m:`${x} = ${fracH(bi(-b),den)} = ${fq(r)}`});const k=a/(r.d*r.d);steps.push({t:'Factor form',m:`${k===1n?'':bi(k)}${factorH(r.n,r.d,v)}<sup>2</sup> = 0`});roots.push({k:'q',q:r,mult:2});return}
+  const im=D<0n,[k,m]=surd(absB(D));
+  steps.push({t:'Quadratic formula',m:fH});
+  if(im)steps.push({t:'Square root of a negative',m:`√(${bi(D)}) = √${absB(D)} × √(−1) = ${surdH(k,m)}<i>i</i>`,n:'Here i = √(−1).'});
+  else if(k>1n)steps.push({t:'Simplify √D',m:`√${D} = √(${k*k} × ${m}) = ${surdH(k,m)}`});
+  const g=gcdB(gcdB(b,k),den),B1=-b/g,K1=k/g,d1=den/g;
+  steps.push({t:g>1n?`Divide top and bottom by ${g} (simplify)`:'Answer',m:`${x} = ${fracH(`${bi(-b)} ± ${surdH(k,m)}${im?'<i>i</i>':''}`,den)}${g>1n?` = ${pmH(B1,K1,m,d1,im,0)}`:''}`});
+  roots.push({k:'s',B:B1,K:K1,m,d:d1,im})}
+function solvePolyInt(c,v,steps,roots){
+  const x=`<i>${v}</i>`;let k=0;while(c[k]===0n)k++;
+  if(k>0){steps.push({t:`Take out the common factor ${xpH(v,k)}`,m:`${xpH(v,k)}(${fpolyB(c.slice(k),v)}) = 0`,n:`${xpH(v,k)} = 0 gives ${x} = 0.`});roots.push({k:'q',q:Z,mult:k});c=c.slice(k)}
+  let tested=new Set();
+  while(c.length-1>=3){
+    const c0=c[0],cn=c[c.length-1],ps=divisors(c0),qs=divisors(cn);
+    if(!ps||!qs)break;
+    const cand=[],seen=new Set();for(const p of ps)for(const qq of qs){const r=new Q(p,qq);const key=r.n+'/'+r.d;if(!seen.has(key)){seen.add(key);cand.push(r)}}
+    cand.sort((a,b)=>a.cmp(b));const all=[];for(const r of cand){all.push(r);all.push(r.neg())}
+    if(all.length>3000)break;
+    const deg=c.length-1;
+    if(!tested.size)steps.push({t:'Rational Root Theorem',m:`Possible roots = ± ${fracH(`factors of ${bi(c0)}`,`factors of ${bi(cn)}`)}`,lines:[M(cand.slice(0,20).map(r=>'±'+fq(r)).join(', ')+(cand.length>20?' …':''))],n:'Try each value to see which ones make the equation 0.'});
+    let found=null;for(const r of all){tested.add(r.n+'/'+r.d);let s=0n;for(let i=0;i<=deg;i++)s+=c[i]*r.n**B(i)*r.d**B(deg-i);if(s===0n){found=r;break}}
+    if(!found)break;
+    const p=found.n,qq=found.d,rem=c.slice(),quo=Array(deg).fill(0n);
+    for(let i=deg;i>=1;i--){if(rem[i]%qq!==0n)throw new MErr('The internal check failed.');const co=rem[i]/qq;quo[i-1]=co;rem[i]-=co*qq;rem[i-1]+=co*p}
+    if(rem.some(z=>z!==0n))throw new MErr('The internal check failed.');
+    steps.push({t:`Try ${x} = ${fq(found)}`,m:`P(${fq(found)}) = 0 ✓`,n:`So ${factorH(p,qq,v)} is a factor. Dividing gives:`,lines:[M(`${factorH(p,qq,v)}(${fpolyB(quo,v)}) = 0`)]});
+    roots.push({k:'q',q:found,mult:1});c=quo}
+  const deg=c.length-1;
+  if(deg===1){const r=new Q(-c[0],c[1]);steps.push({t:'Linear part',m:`${fpolyB(c,v)} = 0 &nbsp;→&nbsp; ${x} = ${fq(r)}`});roots.push({k:'q',q:r,mult:1})}
+  else if(deg===2)quadSteps(c[2],c[1],c[0],v,steps,roots);
+  else if(deg>=3){
+    const zs=dk(c.map(Number));const list=[];
+    for(const z of zs){if(Math.abs(z[1])<1e-8*(1+Math.abs(z[0])))list.push({k:'n',re:z[0],im:0});else if(z[1]>0)list.push({k:'n',re:z[0],im:z[1]})}
+    steps.push({t:'Numerical method',m:`${fpolyB(c,v)} = 0`,n:`No rational root was found for this part${tested.size?` (${tested.size} values checked)`:''}, so the roots were found with a numerical method (Durand–Kerner) — accurate to 6 decimal places.`});
+    roots.push(...list)}}
+/* ================= SYSTEM (2–3 linear equations) ================= */
+const linConst=a=>Object.values(a.v).every(x=>x.z);
+const linAdd=(a,b)=>{const v={...a.v};for(const k in b.v)v[k]=(v[k]||Z).add(b.v[k]);return{c:a.c.add(b.c),v}};
+const linScale=(a,s)=>{const v={};for(const k in a.v)v[k]=a.v[k].mul(s);return{c:a.c.mul(s),v}};
+function evalLin(n){
+  switch(n.t){
+    case'num':return{c:n.v,v:{}};
+    case'var':return{c:Z,v:{[n.name]:ONE}};
+    case'pi':throw new MErr(PIERR);
+    case'neg':return linScale(evalLin(n.a),ONE.neg());
+    case'fn':{const as=n.args.map(evalLin);if(!as.every(linConst))throw new MErr('A variable inside a function (√, sin …) — this is not a linear equation.');if(n.name==='sqrt'){const r=sqrtQ(as[0].c);if(!r)throw new MErr('√ has no exact value (not a perfect square).');return{c:r,v:{}}}const r=fnApply(n.name,as.map(a=>a.c));if(!isQ(r.v))throw new MErr('This function does not give an exact number.');return{c:r.v,v:{}}}
+    case'bin':{const a=evalLin(n.l),b=evalLin(n.r);
+      if(n.op==='+')return linAdd(a,b);
+      if(n.op==='-')return linAdd(a,linScale(b,ONE.neg()));
+      if(n.op==='*'){if(linConst(a))return linScale(b,a.c);if(linConst(b))return linScale(a,b.c);throw new MErr('Multiplying variables (like xy or x²) is not linear. This tool is for linear equations only.')}
+      if(n.op==='/'){if(!linConst(b))throw new MErr('The variable is in the denominator — cross-multiply first.');if(b.c.z)throw new MErr(DIV0);return linScale(a,b.c.inv())}
+      if(n.op==='^'){if(!linConst(b)||!b.c.int)throw new MErr('The power must be a whole number.');if(linConst(a))return{c:powQ(a.c,b.c.n),v:{}};if(b.c.n===1n)return a;if(b.c.n===0n)return{c:ONE,v:{}};throw new MErr('Terms like x² are not linear. Solve one-variable quadratics in the Equation tool.')}}}}
+function linEqH(co,vs,rhs){let s='';co.forEach((c,i)=>{if(c.z)return;const neg=c.n<0n,ab=c.abs(),core=(ab.eq(ONE)?'':fq(ab))+`<i>${vs[i]}</i>`;s+=s===''?(neg?'−':'')+core:(neg?' − ':' + ')+core});return(s||'0')+' = '+fq(rhs)}
+const matH=Mx=>`<span class="det"><table>${Mx.map(r=>`<tr>${r.map(c=>`<td>${fq(c)}</td>`).join('')}</tr>`).join('')}</table></span>`;
+function detStep(name,Mx){
+  const pr=(x,y)=>`(${fq(x)})(${fq(y)})`;
+  if(Mx.length===2){const[[a,b],[c,d]]=Mx,ad=a.mul(d),bc=b.mul(c),D=ad.sub(bc);return{D,m:`${name} = ${matH(Mx)} = ${pr(a,d)} − ${pr(b,c)} = ${fq(ad)} − ${fqP(bc)} = ${fq(D)}`}}
+  const[[a,b,c],[d,e,f],[g,h,i]]=Mx,m1=e.mul(i).sub(f.mul(h)),m2=d.mul(i).sub(f.mul(g)),m3=d.mul(h).sub(e.mul(g)),D=a.mul(m1).sub(b.mul(m2)).add(c.mul(m3));
+  const br=(p,q2,r,s)=>`[${pr(p,q2)} − ${pr(r,s)}]`;
+  return{D,m:`${name} = ${matH(Mx)}`,lines:[M(`= ${fqP(a)}${br(e,i,f,h)} − ${fqP(b)}${br(d,i,f,g)} + ${fqP(c)}${br(d,h,e,g)}`),M(`= ${fqP(a)}(${fq(m1)}) − ${fqP(b)}(${fq(m2)}) + ${fqP(c)}(${fq(m3)}) = ${fq(D)}`)]}}
+function rankQ(Mx){const m=Mx.map(r=>r.slice());let rk=0;const cols=m[0].length;for(let c=0;c<cols&&rk<m.length;c++){let p=rk;while(p<m.length&&m[p][c].z)p++;if(p===m.length)continue;[m[rk],m[p]]=[m[p],m[rk]];for(let r=0;r<m.length;r++)if(r!==rk&&!m[r][c].z){const f=m[r][c].div(m[rk][c]);m[r]=m[r].map((x,j)=>x.sub(f.mul(m[rk][j])))}rk++}return rk}
+function solveSys(srcs){
+  const eqs=srcs.map(s=>s.trim()).filter(Boolean);
+  if(eqs.length<2)throw new MErr('Type at least 2 equations.');
+  const parsed=eqs.map((s,i)=>{const t=tokenize(s);const idx=t.map((x,j)=>x.k==='='?j:-1).filter(j=>j>=0);if(idx.length!==1)throw new MErr(`Equation ${i+1} must have one "=".`);let l,r;try{l=parse(t.slice(0,idx[0]));r=parse(t.slice(idx[0]+1))}catch(e){throw new MErr(`Equation ${i+1}: ${e.message}`)}const L=evalLin(l),Rr=evalLin(r);return{l,r,L,R:Rr,E:linAdd(L,linScale(Rr,ONE.neg()))}});
+  const vs=[...new Set(parsed.flatMap(p=>Object.keys(p.E.v).filter(k=>!p.E.v[k].z)))].sort();
+  const n=eqs.length;
+  if(vs.length!==n)throw new MErr(`There are ${n} equations but ${vs.length} variable${vs.length===1?'':'s'} (${vs.join(', ')||'none'}). The number of equations and variables must match.`);
+  const A=parsed.map(p=>vs.map(k=>p.E.v[k]||Z)),b=parsed.map(p=>p.E.c.neg());
+  const steps=[{t:'Write in standard form',m:A.map((r,i)=>linEqH(r,vs,b[i])).join('<br>'),n:'Variables on the left, numbers on the right.'}];
+  const d=detStep('D',A);steps.push({t:'Determinant of the coefficients (Cramer\'s rule)',m:d.m,lines:d.lines});
+  if(d.D.z){
+    const Ab=A.map((r,i)=>[...r,b[i]]);const rA=rankQ(A),rB=rankQ(Ab);
+    if(rA<rB){steps.push({t:'D = 0 and the equations contradict each other',n:'One equation contradicts another (like parallel lines), so there is no common solution.'});return{answer:'No solution',sub:'No solution (inconsistent system)',steps}}
+    steps.push({t:'D = 0 and the equations are dependent',n:'At least one equation is a multiple of another, so there are infinitely many solutions.'});return{answer:'Infinitely many solutions',sub:'The equations depend on each other',steps}}
+  const sol={};
+  vs.forEach((vn,j)=>{const Mj=A.map((r,i)=>r.map((c,k)=>k===j?b[i]:c));const dj=detStep(`D<sub>${vn}</sub>`,Mj);steps.push({t:`D<sub>${vn}</sub> — ${vn} column replaced by the constants`,m:dj.m,lines:dj.lines});sol[vn]=dj.D.div(d.D);steps.push({t:`Value of ${vn}`,m:`<i>${vn}</i> = ${fracH(`D<sub>${vn}</sub>`,'D')} = ${fq(dj.D)} ÷ ${fqP(d.D)} = ${fq(sol[vn])}`})});
+  const check=['Putting the values into each original equation:'];
+  parsed.forEach((p,i)=>{const lv=Object.keys(p.L.v).reduce((s,k)=>s.add(p.L.v[k].mul(sol[k]||Z)),p.L.c),rv=Object.keys(p.R.v).reduce((s,k)=>s.add(p.R.v[k].mul(sol[k]||Z)),p.R.c);if(!lv.eq(rv))throw new MErr('The internal check failed.');check.push(M(`Eq ${i+1}: ${R(subst(p.l,sol))} = ${fq(lv)}, &nbsp; right = ${fq(rv)} ✓`))});
+  return{answer:vs.map(k=>`<i>${k}</i> = ${fq(sol[k])}`).join(', &nbsp; '),sub:vs.some(k=>!sol[k].int)?vs.map(k=>`${k} = ${decInfo(sol[k]).html}`).join(' · '):'',steps,check}}
+
+/* ================= HCF & LCM ================= */
+function factorN(n){const f=[];let x=n;for(const p of[2,3])while(x%p===0){f.push(p);x/=p}for(let p=5;p*p<=x;p+=6)for(const d of[p,p+2])while(x%d===0){f.push(d);x/=d}if(x>1)f.push(x);return f}
+const ppH=mp=>[...mp.entries()].sort((a,b)=>a[0]-b[0]).map(([p,e])=>p+(e>1?`<sup>${e}</sup>`:'')).join(' × ')||'1';
+function solveHcf(src){
+  const parts=src.split(/[\s,;]+/).filter(Boolean);
+  if(parts.length<2)throw new MErr('Type at least 2 numbers, separated by commas: 12, 18');
+  if(parts.length>10)throw new MErr('At most 10 numbers.');
+  const nums=parts.map(s=>{if(!/^\d+$/.test(s))throw new MErr(`"${s}" — use positive whole numbers only.`);const v=Number(s);if(v<1||v>1e15)throw new MErr(`"${s}" — numbers from 1 to 1,000,000,000,000,000 only.`);return v});
+  const steps=[],maps=[];
+  for(const n of nums){const f=factorN(n);const mp=new Map();f.forEach(p=>mp.set(p,(mp.get(p)||0)+1));maps.push(mp);
+    let cur=n;const rows=f.map(p=>{const r=`<tr><td>${p}</td><td>${cur}</td></tr>`;cur/=p;return r}).join('')+`<tr><td></td><td>1</td></tr>`;
+    steps.push({t:`Prime factors of ${n} (division ladder)`,lines:[`<div class="tblw"><table class="tbl">${rows}</table></div>`],m:`${n} = ${f.length?f.join(' × '):'1'} = ${ppH(mp)}`})}
+  const primes=[...new Set(maps.flatMap(m=>[...m.keys()]))].sort((a,b)=>a-b);
+  const hm=new Map(),lm=new Map();
+  for(const p of primes){const es=maps.map(m=>m.get(p)||0);const mn=Math.min(...es),mx=Math.max(...es);if(mn>0)hm.set(p,mn);lm.set(p,mx)}
+  const val=mp=>[...mp.entries()].reduce((s,[p,e])=>s*B(p)**B(e),1n);
+  const H=val(hm),L=val(lm);
+  steps.push({t:'HCF = common primes, lowest power',m:`HCF = ${ppH(hm)} = ${H}`,n:hm.size?'For each prime found in every number, take its lowest power.':'No common prime, so HCF = 1.'});
+  steps.push({t:'LCM = every prime, highest power',m:`LCM = ${ppH(lm)} = ${L}`});
+  const check=[];
+  for(const n of nums){if(B(n)%H!==0n||L%B(n)!==0n)throw new MErr('The internal check failed.')}
+  check.push(`HCF (${H}) divides every number exactly, and LCM (${L}) is divisible by every number ✓`);
+  if(nums.length===2){const pr=B(nums[0])*B(nums[1]);if(H*L!==pr)throw new MErr('The internal check failed.');check.push(M(`HCF × LCM = ${H} × ${L} = ${H*L} = ${nums[0]} × ${nums[1]} ✓`))}
+  return{answer:`HCF = ${H} &nbsp;·&nbsp; LCM = ${L}`,steps,check}}
+
+/* ================= NUMBER INPUT ================= */
+function numQ(str,label,o={}){
+  const s=String(str??'').trim();
+  if(!s){if(o.optional)return null;throw new MErr(`"${label}" is empty — type a number.`)}
+  let v;try{const t=tokenize(s.replace(/(\d),(?=\d{3}(\D|$))/g,'$1'));if(t.some(x=>x.k==='var'||x.k==='='))throw new MErr('type a number only');const p=evalPoly(parse(t),'#');v=p[0]}catch(e){throw new MErr(`"${label}": ${e instanceof MErr?e.message:'could not read the number'}`)}
+  if(o.pos&&v.sgn()<=0)throw new MErr(`"${label}" must be greater than zero.`);
+  if(o.nonneg&&v.sgn()<0)throw new MErr(`"${label}" cannot be negative.`);
+  return v}
+const grp=s=>{const[i,f]=s.split('.');return i.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(f?'.'+f:'')};
+function money(x){const s=decStr(x,2);const neg=s.startsWith('-');let t=grp(neg?s.slice(1):s);if(t.includes('.')&&t.split('.')[1].length===1)t+='0';return(neg?'−':'')+t}
+const isTerm=x=>{let d=x.d;while(d%2n===0n)d/=2n;while(d%5n===0n)d/=5n;return d===1n};
+
+/* ================= PERCENTAGE ================= */
+const PCT_MODES={
+  of:{name:'P% of N (percent of a number)',a:'Percent (%)',b:'Number',ex:['15','480']},
+  what:{name:'A is what % of B',a:'A (part)',b:'B (whole)',ex:['45','180']},
+  change:{name:'% increase / decrease',a:'Old value',b:'New value',ex:['250','310']},
+  pl:{name:'Profit / Loss %',a:'Cost price (CP)',b:'Sale price (SP)',ex:['1200','1500']},
+  disc:{name:'Discount',a:'Marked price',b:'Discount (%)',ex:['2400','15']}};
+function solvePct(mode,as,bs){
+  const md=PCT_MODES[mode];const a=numQ(as,md.a),b=numQ(bs,md.b);const H=q(100),steps=[];let answer,check=[];
+  if(mode==='of'){const r=a.mul(b).div(H);
+    steps.push({t:'Percent means "out of 100"',m:`${fq(a)}% = ${fracH(fq(a),'100')}`});
+    steps.push({t:'Multiply by the number',m:`${fracH(fq(a),'100')} × ${fqP(b)} = ${fracH(fq(a.mul(b)),'100')} = ${nice(r)}`});
+    answer=`${fq(a)}% of ${fq(b)} = ${nice(r)}`;check.push(M(`${nice(r)} ÷ ${fqP(b)} × 100 = ${fq(r.div(b.z?ONE:b).mul(H))}% ✓`))}
+  else if(mode==='what'){if(b.z)throw new MErr(DIV0);const r=a.div(b).mul(H);
+    steps.push({t:'Part ÷ whole',m:`${fracH(fq(a),fq(b))} = ${nice(a.div(b))}`});
+    steps.push({t:'Multiply by 100 = percent',m:`${fracH(fq(a),fq(b))} × 100 = ${nice(r)}%`});
+    answer=`${fq(a)} = ${nice(r)}% of ${fq(b)}`;check.push(M(`${nice(r)}% of ${fq(b)} = ${fq(r.mul(b).div(H))} ✓`))}
+  else if(mode==='change'){if(a.z)throw new MErr('Percent change cannot be found when the old value is 0.');const ch=b.sub(a),r=ch.div(a.abs()).mul(H);const up=ch.sgn()>=0;
+    steps.push({t:'Change = new − old',m:`${fq(b)} − ${fqP(a)} = ${fq(ch)}`});
+    steps.push({t:'Percent change = change ÷ old × 100',m:`${fracH(fq(ch),fq(a.abs()))} × 100 = ${nice(r)}%`});
+    answer=ch.z?'No change (0%)':`${nice(r.abs())}% ${up?'increase':'decrease'}`;check.push(M(`${fq(a)} ${up?'+':'−'} ${nice(r.abs())}% of ${fq(a)} = ${fq(a.add(a.abs().mul(r).div(H)))} ✓`))}
+  else if(mode==='pl'){if(a.sgn()<=0)throw new MErr('Cost price must be greater than zero.');const ch=b.sub(a),r=ch.div(a).mul(H);const pr=ch.sgn()>=0;
+    steps.push({t:pr?'Profit = SP − CP':'Loss = CP − SP',m:pr?`${fq(b)} − ${fq(a)} = ${fq(ch)}`:`${fq(a)} − ${fq(b)} = ${fq(ch.neg())}`});
+    steps.push({t:`${pr?'Profit':'Loss'} % = ${pr?'profit':'loss'} ÷ CP × 100`,m:`${fracH(fq(ch.abs()),fq(a))} × 100 = ${nice(r.abs())}%`,n:'Percent is always worked out on the cost price (CP).'});
+    answer=ch.z?'No profit, no loss':`${pr?'Profit':'Loss'} = Rs ${money(ch.abs())} &nbsp;(${nice(r.abs())}%)`;check.push(M(`CP ${pr?'+':'−'} ${pr?'profit':'loss'} = ${fq(a)} ${pr?'+':'−'} ${fq(ch.abs())} = ${fq(b)} = SP ✓`))}
+  else{const dsc=a.mul(b).div(H),sp=a.sub(dsc);
+    steps.push({t:'Discount amount = marked price × discount%',m:`${fq(a)} × ${fracH(fq(b),'100')} = ${nice(dsc)}`});
+    steps.push({t:'Sale price = marked price − discount',m:`${fq(a)} − ${nice(dsc)} = ${nice(sp)}`});
+    answer=`Discount = Rs ${money(dsc)} &nbsp;·&nbsp; Price = Rs ${money(sp)}`;check.push(M(`${nice(sp)} + ${nice(dsc)} = ${fq(a)} ✓`))}
+  return{answer,steps,check}}
+
+/* ================= INTEREST ================= */
+function solveInt(type,Ps,Rs,Ts,nS){
+  const Pr=numQ(Ps,'Principal',{pos:true}),Rt=numQ(Rs,'Rate %',{nonneg:true}),T=numQ(Ts,'Time (years)',{pos:true});const H=q(100),steps=[];
+  if(type==='si'){const SI=Pr.mul(Rt).mul(T).div(H),A=Pr.add(SI);
+    steps.push({t:'Simple interest formula',m:`SI = ${fracH('P × R × T','100')}`});
+    steps.push({t:'Values daalein',m:`SI = ${fracH(`${fq(Pr)} × ${fq(Rt)} × ${fq(T)}`,'100')} = ${fracH(fq(Pr.mul(Rt).mul(T)),'100')} = ${nice(SI,2)}`});
+    steps.push({t:'Amount = P + SI',m:`A = ${fq(Pr)} + ${nice(SI,2)} = ${nice(A,2)}`});
+    return{answer:`SI = Rs ${money(SI)} &nbsp;·&nbsp; Amount = Rs ${money(A)}`,sub:isTerm(SI)?'':'Rounded to 2 decimal places',steps,check:[M(`${fq(SI)} ÷ (${fq(Pr)} × ${fq(T)}) × 100 = ${fq(SI.div(Pr.mul(T)).mul(H))}% ✓`)]}}
+  const n=Number(nS);const nQ=q(n);const N=T.mul(nQ);const i=Rt.div(H.mul(nQ));const per={1:'yearly',2:'every 6 months',4:'every 3 months',12:'monthly'}[n];
+  steps.push({t:'Compound interest formula',m:`A = P(1 + ${fracH('R','100 × n')})<sup>n × T</sup>`,n:`n = ${n} (${per}), so interest is added ${n} time${n>1?'s':''} a year.`});
+  steps.push({t:'Rate per period',m:`${fracH(fq(Rt),`100 × ${n}`)} = ${nice(i,6)}`,lines:[`Total periods: n × T = ${n} × ${fq(T)} = ${nice(N)}`]});
+  let A,approx=false;
+  if(N.int&&N.n<=1200n){const fac=ONE.add(i).pow(N.n);A=Pr.mul(fac);steps.push({t:'Amount',m:`A = ${fq(Pr)} × (${fq(ONE.add(i))})<sup>${N.n}</sup>`,lines:[M(`= ${fq(Pr)} × ${decStr(fac,8)}…`),M(`≈ ${money(A)}`)],n:'Worked in exact fractions; only the final paisa are rounded.'})}
+  else{approx=true;const Af=Pr.num()*Math.pow(1+i.num(),N.num());A=null;steps.push({t:'Amount (decimal)',m:`A = ${fq(Pr)} × (1 + ${fq(i)})<sup>${fq(N)}</sup> ≈ ${grp(Af.toFixed(2))}`});const CIf=Af-Pr.num();steps.push({t:'Compound interest = A − P',m:`CI ≈ ${grp(Af.toFixed(2))} − ${fq(Pr)} ≈ ${grp(CIf.toFixed(2))}`});return{answer:`CI ≈ Rs ${grp(CIf.toFixed(2))} &nbsp;·&nbsp; Amount ≈ Rs ${grp(Af.toFixed(2))}`,sub:'Periods are not whole, so worked in decimals',steps}}
+  const CI=A.sub(Pr);
+  steps.push({t:'Compound interest = A − P',m:`CI = ${money(A)} − ${money(Pr)} = ${money(CI)}`});
+  if(N.n<=40n){let cur=Pr;const rows=[];for(let k=1n;k<=N.n;k++){const it=cur.mul(i),end=cur.add(it);rows.push(`<tr><td>${k}</td><td>${money(cur)}</td><td>${money(it)}</td><td>${money(end)}</td></tr>`);cur=end}
+    steps.push({t:'Period-by-period table',lines:[`<div class="tblw"><table class="tbl"><tr><th>Period</th><th>Start</th><th>Interest</th><th>End</th></tr>${rows.join('')}</table></div>`],n:'Each period\'s interest is charged on the previous amount.'})}
+  return{answer:`CI = Rs ${money(CI)} &nbsp;·&nbsp; Amount = Rs ${money(A)}`,sub:'Rounded to 2 decimal places',steps}}
+
+/* ================= GEOMETRY ================= */
+const ex={
+  q:x=>x.z?[]:[{q:x,p:0,m:1n}],
+  norm(a){const mp=new Map();for(const t of a){const k=t.p+'|'+t.m;mp.set(k,mp.has(k)?{...t,q:mp.get(k).q.add(t.q)}:{...t})}return[...mp.values()].filter(t=>!t.q.z)},
+  add(...xs){return ex.norm(xs.flat())},
+  mul(...xs){return xs.reduce((a,b)=>{const r=[];for(const s of a)for(const t of b){const[k,m]=surd(s.m*t.m);r.push({q:s.q.mul(t.q).mul(new Q(k)),p:s.p+t.p,m})}return ex.norm(r)},[{q:ONE,p:0,m:1n}])},
+  sqrt(a){if(!a.length)return[];if(a.length===1&&a[0].p===0&&a[0].m===1n&&a[0].q.n>0n){const x=a[0].q,[k,m]=surd(x.n*x.d);return[{q:new Q(k,x.d),p:0,m}]}return null},
+  num(a){return a.reduce((s,t)=>s+t.q.num()*Math.pow(Math.PI,t.p)*Math.sqrt(Number(t.m)),0)},
+  rat(a){return a.length===0?Z:(a.length===1&&a[0].p===0&&a[0].m===1n)?a[0].q:null}};
+function exH(a){if(!a.length)return'0';const ts=[...a].sort((x,y)=>x.p-y.p||(x.m<y.m?-1:x.m>y.m?1:0));let s='';ts.forEach((t,i)=>{const neg=t.q.n<0n,c=t.q.abs(),sym=t.p>0||t.m>1n;let core=(c.eq(ONE)&&sym)?'':fq(c);if(t.p>0)core+='π'+(t.p>1?`<sup>${t.p}</sup>`:'');if(t.m>1n)core+=`√<span class="rad">${t.m}</span>`;s+=i===0?(neg?'−':'')+core:(neg?' − ':' + ')+core});return s}
+let GU='cm';
+const unitH=dim=>!GU?'':' '+GU+(dim>1?`<sup>${dim}</sup>`:'');
+function G(title,formula,subst,val,dim){
+  const u=unitH(dim),r=ex.rat(val),showAp=!(r&&isTerm(r)),apx=showAp?` ≈ ${fmtD(ex.num(val))}${u}`:'';
+  const dec=r&&!r.int&&isTerm(r)?` = ${decInfo(r).html}${u}`:'';
+  return{step:{t:title,m:formula,lines:[M(`= ${subst}`),M(`= ${exH(val)}${u}${dec}${apx}`)]},ans:{t:title,html:`${exH(val)}${u}${dec}`,ap:apx}}}
+const E=ex.q,TWO=q(2),HALF=q(1,2);
+const sq=x=>x.mul(x);
+const SHAPES={
+  square:{name:'Square',inputs:[['a','Side (a)','6']],run({a},c){return[
+    G('Area','A = a<sup>2</sup>',`${fqP(a)}<sup>2</sup>`,E(sq(a)),2),
+    G('Perimeter','P = 4a',`4 × ${fqP(a)}`,E(a.mul(q(4))),1),
+    G('Diagonal','d = a√2',`${fqP(a)} × √2`,ex.mul(E(a),ex.sqrt(E(TWO))),1)]}},
+  rect:{name:'Rectangle',inputs:[['l','Length (l)','8'],['w','Width (w)','5']],run({l,w}){return[
+    G('Area','A = l × w',`${fq(l)} × ${fq(w)}`,E(l.mul(w)),2),
+    G('Perimeter','P = 2(l + w)',`2(${fq(l)} + ${fq(w)})`,E(TWO.mul(l.add(w))),1),
+    G('Diagonal','d = √(l<sup>2</sup> + w<sup>2</sup>)',`√(${fq(sq(l))} + ${fq(sq(w))}) = √${fq(sq(l).add(sq(w)))}`,ex.sqrt(E(sq(l).add(sq(w)))),1)]}},
+  tri:{name:'Triangle (base, height)',inputs:[['b','Base (b)','10'],['h','Height (h)','7']],run({b,h}){return[
+    G('Area','A = ½ × b × h',`½ × ${fq(b)} × ${fq(h)}`,E(HALF.mul(b).mul(h)),2)]}},
+  tri3:{name:'Triangle (3 sides — Heron)',inputs:[['a','Side a','5'],['b','Side b','6'],['c','Side c','7']],run({a,b,c}){
+    if(a.add(b).cmp(c)<=0||a.add(c).cmp(b)<=0||b.add(c).cmp(a)<=0)throw new MErr('These three sides do not make a triangle — any two sides must add up to more than the third.');
+    const s=a.add(b).add(c).mul(HALF),pr=s.mul(s.sub(a)).mul(s.sub(b)).mul(s.sub(c));return[
+    G('Perimeter','P = a + b + c',`${fq(a)} + ${fq(b)} + ${fq(c)}`,E(a.add(b).add(c)),1),
+    G('Semi-perimeter (s)','s = ½(a + b + c)',`½ × ${fq(a.add(b).add(c))}`,E(s),1),
+    G('Area (Heron formula)','A = √(s(s − a)(s − b)(s − c))',`√(${fq(s)} × ${fq(s.sub(a))} × ${fq(s.sub(b))} × ${fq(s.sub(c))}) = √${fq(pr)}`,ex.sqrt(E(pr)),2)]}},
+  right:{name:'Right triangle (Pythagoras)',note:'Enter any two of the three values and leave the one you want empty.',inputs:[['a','Leg a','5',1],['b','Leg b','12',1],['c','Hypotenuse c','',1]],run({a,b,c}){
+    const blanks=[a,b,c].filter(x=>x===null).length;if(blanks!==1)throw new MErr('Leave exactly one of the three boxes empty (the one you want to find).');
+    const out=[];let A=a?E(a):null,Bx=b?E(b):null,C=c?E(c):null;
+    if(!c){C=ex.sqrt(E(sq(a).add(sq(b))));out.push(G('Hypotenuse (Pythagoras)','c = √(a<sup>2</sup> + b<sup>2</sup>)',`√(${fqP(a)}<sup>2</sup> + ${fqP(b)}<sup>2</sup>) = √(${fq(sq(a))} + ${fq(sq(b))}) = √${fq(sq(a).add(sq(b)))}`,C,1))}
+    else{const leg=a||b,nm=a?'b':'a';if(c.cmp(leg)<=0)throw new MErr('The hypotenuse is the longest side — it must be longer than the leg.');const v=ex.sqrt(E(sq(c).sub(sq(leg))));if(a)Bx=v;else A=v;out.push(G(`Leg ${nm} (Pythagoras)`,`${nm} = √(c<sup>2</sup> − ${a?'a':'b'}<sup>2</sup>)`,`√(${fq(sq(c))} − ${fq(sq(leg))}) = √${fq(sq(c).sub(sq(leg)))}`,v,1))}
+    out.push(G('Area','A = ½ × a × b',`½ × ${exH(A)} × ${exH(Bx)}`,ex.mul(E(HALF),A,Bx),2));
+    out.push(G('Perimeter','P = a + b + c',`${exH(A)} + ${exH(Bx)} + ${exH(C)}`,ex.add(A,Bx,C),1));return out}},
+  circle:{name:'Circle',inputs:[['r','Radius (r)','7']],run({r},c){return[
+    G('Diameter','d = 2r',`2 × ${fq(r)}`,E(TWO.mul(r)),1),
+    G('Circumference','C = 2πr',`2 × ${c.piH} × ${fq(r)}`,ex.mul(E(TWO.mul(r)),c.pi),1),
+    G('Area','A = πr<sup>2</sup>',`${c.piH} × ${fqP(r)}<sup>2</sup>`,ex.mul(E(sq(r)),c.pi),2)]}},
+  trap:{name:'Trapezium',inputs:[['a','Parallel side a','8'],['b','Parallel side b','12'],['h','Height (h)','5']],run({a,b,h}){return[
+    G('Area','A = ½(a + b) × h',`½(${fq(a)} + ${fq(b)}) × ${fq(h)}`,E(HALF.mul(a.add(b)).mul(h)),2)]}},
+  para:{name:'Parallelogram',inputs:[['b','Base (b)','9'],['h','Height (h)','4']],run({b,h}){return[G('Area','A = b × h',`${fq(b)} × ${fq(h)}`,E(b.mul(h)),2)]}},
+  cube:{name:'Cube',inputs:[['a','Side (a)','4']],run({a}){return[
+    G('Volume','V = a<sup>3</sup>',`${fqP(a)}<sup>3</sup>`,E(a.pow(3n)),3),
+    G('Total surface area','TSA = 6a<sup>2</sup>',`6 × ${fqP(a)}<sup>2</sup>`,E(q(6).mul(sq(a))),2),
+    G('Diagonal','d = a√3',`${fqP(a)} × √3`,ex.mul(E(a),ex.sqrt(E(q(3)))),1)]}},
+  cuboid:{name:'Cuboid',inputs:[['l','Length (l)','6'],['w','Width (w)','4'],['h','Height (h)','3']],run({l,w,h}){const s2=sq(l).add(sq(w)).add(sq(h));return[
+    G('Volume','V = l × w × h',`${fq(l)} × ${fq(w)} × ${fq(h)}`,E(l.mul(w).mul(h)),3),
+    G('Total surface area','TSA = 2(lw + wh + hl)',`2(${fq(l.mul(w))} + ${fq(w.mul(h))} + ${fq(h.mul(l))})`,E(TWO.mul(l.mul(w).add(w.mul(h)).add(h.mul(l)))),2),
+    G('Diagonal','d = √(l<sup>2</sup> + w<sup>2</sup> + h<sup>2</sup>)',`√${fq(s2)}`,ex.sqrt(E(s2)),1)]}},
+  cyl:{name:'Cylinder',inputs:[['r','Radius (r)','7'],['h','Height (h)','10']],run({r,h},c){return[
+    G('Volume','V = πr<sup>2</sup>h',`${c.piH} × ${fqP(r)}<sup>2</sup> × ${fq(h)}`,ex.mul(c.pi,E(sq(r).mul(h))),3),
+    G('Curved surface area','CSA = 2πrh',`2 × ${c.piH} × ${fq(r)} × ${fq(h)}`,ex.mul(c.pi,E(TWO.mul(r).mul(h))),2),
+    G('Total surface area','TSA = 2πr(r + h)',`2 × ${c.piH} × ${fq(r)} × (${fq(r)} + ${fq(h)})`,ex.mul(c.pi,E(TWO.mul(r).mul(r.add(h)))),2)]}},
+  cone:{name:'Cone',inputs:[['r','Radius (r)','3'],['h','Height (h)','4']],run({r,h},c){const L=ex.sqrt(E(sq(r).add(sq(h))));return[
+    G('Slant height (l)','l = √(r<sup>2</sup> + h<sup>2</sup>)',`√(${fq(sq(r))} + ${fq(sq(h))}) = √${fq(sq(r).add(sq(h)))}`,L,1),
+    G('Volume','V = ⅓πr<sup>2</sup>h',`⅓ × ${c.piH} × ${fqP(r)}<sup>2</sup> × ${fq(h)}`,ex.mul(c.pi,E(sq(r).mul(h).div(q(3)))),3),
+    G('Curved surface area','CSA = πrl',`${c.piH} × ${fq(r)} × ${exH(L)}`,ex.mul(c.pi,E(r),L),2),
+    G('Total surface area','TSA = πr(l + r)',`${c.piH} × ${fq(r)} × (${exH(L)} + ${fq(r)})`,ex.mul(c.pi,E(r),ex.add(L,E(r))),2)]}},
+  sphere:{name:'Sphere',inputs:[['r','Radius (r)','6']],run({r},c){return[
+    G('Volume','V = ⁴⁄₃πr<sup>3</sup>',`⁴⁄₃ × ${c.piH} × ${fqP(r)}<sup>3</sup>`,ex.mul(c.pi,E(q(4,3).mul(r.pow(3n)))),3),
+    G('Surface area','SA = 4πr<sup>2</sup>',`4 × ${c.piH} × ${fqP(r)}<sup>2</sup>`,ex.mul(c.pi,E(q(4).mul(sq(r)))),2)]}}};
+function solveGeo(shape,vals,unit,piMode){
+  const S=SHAPES[shape];GU=unit;
+  const ctx={pi:piMode==='exact'?[{q:ONE,p:1,m:1n}]:E(piMode==='314'?q(314,100):q(22,7)),piH:piMode==='exact'?'π':piMode==='314'?'3.14':fracH('22','7')};
+  const v={};for(const[k,lab,,opt]of S.inputs)v[k]=numQ(vals[k],lab,{pos:true,optional:!!opt});
+  const items=S.run(v,ctx);
+  for(const it of items)if(it.ans.html.includes('null'))throw new MErr('The internal check failed.');
+  return{answer:items.map(it=>`<div><span class="ap" style="font-family:var(--f-ui);font-size:.7em">${it.ans.t}:</span> ${it.ans.html}${it.ans.ap?` <span class="ap" style="font-size:.75em">${it.ans.ap}</span>`:''}</div>`).join(''),sub:piMode==='exact'?'π kept exact; as a decimal π = 3.14159…':`Using π = ${piMode==='314'?'3.14':'22/7'}`,steps:items.map(i=>i.step)}}
+
+/* ================= STATISTICS ================= */
+function solveStat(src){
+  const parts=src.split(/[\s,;]+/).filter(Boolean);
+  if(!parts.length)throw new MErr('Type numbers separated by commas or spaces.');
+  if(parts.length>2000)throw new MErr('At most 2000 numbers.');
+  const xs=parts.map(s=>numQ(s,s)),n=xs.length,N=q(n);
+  const sum=xs.reduce((s,x)=>s.add(x),Z),mean=sum.div(N);
+  const sorted=[...xs].sort((a,b)=>a.cmp(b));
+  const list=a=>a.length<=24?a.map(fq).join(', '):a.slice(0,10).map(fq).join(', ')+', … ,'+a.slice(-6).map(fq).join(', ');
+  const steps=[];
+  steps.push({t:'Mean = sum of all ÷ count',m:`${fracH(n<=12?xs.map(x=>fqP(x)).join(' + '):'sum of all',''+n)} = ${fracH(fq(sum),''+n)} = ${nice(mean)}`});
+  steps.push({t:'Arrange in ascending order',m:list(sorted)});
+  let med;if(n%2){med=sorted[(n-1)/2];steps.push({t:'Median',m:`Position ${fracH(`${n} + 1`,'2')} = ${(n+1)/2} → ${fq(med)}`,n:'The count is odd, so the middle number is the median.'})}
+  else{const a=sorted[n/2-1],b=sorted[n/2];med=a.add(b).div(TWO);steps.push({t:'Median',m:`${fracH(`${fq(a)} + ${fqP(b)}`,'2')} = ${nice(med)}`,n:`The count is even, so take the average of the two middle numbers (positions ${n/2} and ${n/2+1}).`})}
+  const fr=new Map();for(const x of xs){const k=x.n+'/'+x.d;fr.set(k,{x,c:(fr.get(k)?.c||0)+1})}
+  const mxc=Math.max(...[...fr.values()].map(o=>o.c));const modes=[...fr.values()].filter(o=>o.c===mxc).map(o=>o.x).sort((a,b)=>a.cmp(b));
+  const noMode=mxc===1&&n>1;
+  steps.push({t:'Mode (most frequent)',m:noMode?'Every number appears once — no mode':`${modes.map(fq).join(', ')} &nbsp;(${mxc} times)`});
+  const rg=sorted[n-1].sub(sorted[0]);
+  steps.push({t:'Range = largest − smallest',m:`${fq(sorted[n-1])} − ${fqP(sorted[0])} = ${fq(rg)}`});
+  const ss=xs.reduce((s,x)=>s.add(sq(x.sub(mean))),Z),vp=ss.div(N);
+  const sdH=v=>{const r=sqrtQ(v);if(r)return '= '+nice(r);return'≈ '+fmtD(Math.sqrt(v.num()),4)};
+  if(n<=12){const rows=xs.map(x=>`<tr><td>${decInfo(x).html}</td><td>${decInfo(x.sub(mean)).html}</td><td>${decInfo(sq(x.sub(mean))).html}</td></tr>`).join('');steps.push({t:'Deviation table',lines:[`<div class="tblw"><table class="tbl"><tr><th>x</th><th>x − mean</th><th>(x − mean)²</th></tr>${rows}</table></div>`]})}
+  steps.push({t:'Standard deviation (population, σ)',m:`σ = √(${fracH('Σ(x − mean)²','n')}) = √(${fracH(fq(ss),''+n)}) ${sdH(vp)}`});
+  let sub=`Variance (σ²) = ${nice(vp)} · σ ${sdH(vp)}`;
+  if(n>1){const vs=ss.div(q(n-1));steps.push({t:'Standard deviation (sample, s)',m:`s = √(${fracH(fq(ss),`${n} − 1`)}) ${sdH(vs)}`,n:'For a sample, divide by n − 1.'});sub+=` · s ${sdH(vs)}`}
+  return{answer:`Mean = ${nice(mean)} &nbsp;·&nbsp; Median = ${nice(med)} &nbsp;·&nbsp; Mode = ${noMode?'none':modes.map(fq).join(', ')}`,sub:`n = ${n} · Sum = ${fq(sum)} · Range = ${fq(rg)} · ${sub}`,steps}}
+
+/* ================= CALCULUS (polynomials) ================= */
+function polySubH(p,a){const t=[];for(let i=p.length-1;i>=0;i--){if(p[i].z)continue;t.push(i===0?fqP(p[i]):`${p[i].eq(ONE)?'':fqP(p[i])+' × '}${fqP(a)}${i>1?`<sup>${i}</sup>`:''}`)}return t.join(' + ')||'0'}
+function pDeriv(a){const r=[];for(let i=1;i<a.length;i++)r.push(a[i].mul(q(i)));return r.length?P.trim(r):[Z]}
+function pInteg(a){const r=[Z];for(let i=0;i<a.length;i++)r.push(a[i].div(q(i+1)));return P.trim(r)}
+function calcPoly(tree,F,v,op,as,bs){
+  const xh=`<i>${v}</i>`;
+  const steps=[{t:'Function (as understood)',m:`f(${xh}) = ${R(tree)}`}];
+  if(R(tree)!==fpoly(F,v))steps.push({t:'Expand brackets and simplify',m:`f(${xh}) = ${fpoly(F,v)}`});
+  const dLines=A=>{const L=[];for(let i=A.length-1;i>=0;i--){const c=A[i];if(c.z)continue;L.push(M(i===0?`d/d${xh} [${fq(c)}] = 0 &nbsp;<span class="ap">(constant)</span>`:`d/d${xh} [${termH(c,v,i)}] = ${i} × ${fqP(c)}${i>1?xpH(v,i-1):''} = ${termH(c.mul(q(i)),v,i-1)}`))}return L.length?L:[M('The derivative of 0 is 0')]};
+  const iLines=A=>{const L=[];for(let i=A.length-1;i>=0;i--){const c=A[i];if(c.z)continue;L.push(M(`∫ ${termH(c,v,i)} d${xh} = ${fqP(c)} × ${fracH(xpH(v,i+1),''+(i+1))} = ${termH(c.div(q(i+1)),v,i+1)}`))}return L.length?L:[M('∫ 0 = 0')]};
+  const val=(name,poly,a)=>M(`${name}(${fq(a)}) = ${fq(P.ev(poly,a))}`);
+  if(op==='d1'||op==='d2'){
+    const D=pDeriv(F);
+    steps.push({t:'Power rule on each term',m:`d/d${xh} (${xh}<sup>n</sup>) = n${xh}<sup>n−1</sup>`,lines:dLines(F),n:'The derivative of a constant is 0.'});
+    steps.push({t:'First derivative',m:`f′(${xh}) = ${fpoly(D,v)}`});
+    let res=D,nm='f′';
+    if(op==='d2'){res=pDeriv(D);nm='f″';steps.push({t:'Differentiate again (power rule)',lines:dLines(D)});steps.push({t:'Second derivative',m:`f″(${xh}) = ${fpoly(res,v)}`})}
+    const a=String(as||'').trim()?numQ(as,'Point a'):null;
+    if(a)steps.push({t:`Value at ${xh} = ${fq(a)}`,m:`${nm}(${fq(a)}) = ${polySubH(res,a)} = ${fq(P.ev(res,a))}`});
+    const back=P.sub(pInteg(res),op==='d1'?F:D);if(back.length>1)throw new MErr('The internal check failed.');
+    return{answer:`${nm}(${xh}) = ${fpoly(res,v)}`+(a?`<div style="font-size:.8em">${nm}(${fq(a)}) = ${fq(P.ev(res,a))}</div>`:''),steps,check:[M(`∫ ${nm}(${xh}) d${xh} gives back ${op==='d1'?'f':'f′'}(${xh}) + C ✓`)]}}
+  if(op==='int'||op==='def'){
+    const I=pInteg(F);
+    steps.push({t:'Power rule (integration) on each term',m:`∫ ${xh}<sup>n</sup> d${xh} = ${fracH(`${xh}<sup>n+1</sup>`,'n + 1')}`,lines:iLines(F)});
+    if(op==='int'){steps.push({t:'Answer',m:`∫ f(${xh}) d${xh} = ${fpoly(I,v)} + C`,n:'C = constant of integration.'});if(!P.sub(pDeriv(I),F).every(c=>c.z))throw new MErr('The internal check failed.');return{answer:`∫ f(${xh}) d${xh} = ${fpoly(I,v)} + C`,steps,check:[M(`d/d${xh} [${fpoly(I,v)}] = ${fpoly(F,v)} ✓`)]}}
+    const a=numQ(as,'Lower limit (a)'),b=numQ(bs,'Upper limit (b)');const Fa=P.ev(I,a),Fb=P.ev(I,b),res=Fb.sub(Fa);
+    steps.push({t:'Antiderivative F(x)',m:`F(${xh}) = ${fpoly(I,v)}`});
+    steps.push({t:'Value at the limits',lines:[val('F',I,b),val('F',I,a)]});
+    steps.push({t:'Definite integral = F(b) − F(a)',m:`${fq(Fb)} − ${fqP(Fa)} = ${fq(res)}`});
+    const Ff=F.map(c=>c.num()),af=a.num(),bf=b.num(),N=2000,h=(bf-af)/N;let sm=0;const fx=t=>Ff.reduce((s,c,i)=>s+c*Math.pow(t,i),0);for(let i=0;i<=N;i++)sm+=fx(af+i*h)*(i===0||i===N?1:i%2?4:2);sm*=h/3;
+    if(Math.abs(sm-res.num())>1e-6*Math.max(1,Math.abs(res.num()),Ff.reduce((s,c)=>s+Math.abs(c),0)*Math.pow(Math.max(Math.abs(af),Math.abs(bf),1),F.length)))throw new MErr('The internal check failed.');
+    return{answer:`∫<sub>${fq(a)}</sub><sup>${fq(b)}</sup> f(${xh}) d${xh} = ${fq(res)}`,sub:res.int?'':'Decimal: '+decInfo(res).html,steps,check:[`A numerical method (Simpson's rule) also gives ≈ ${fmtD(sm,6)} ✓`]}}
+  if(op==='tan'){
+    const a=numQ(as,'Point a'),D=pDeriv(F),m=P.ev(D,a),y0=P.ev(F,a);
+    steps.push({t:'Derivative (slope formula)',m:`f′(${xh}) = ${fpoly(D,v)}`,lines:dLines(F)});
+    steps.push({t:`Slope and point at ${xh} = ${fq(a)}`,lines:[M(`m = f′(${fq(a)}) = ${fq(m)}`),M(`y = f(${fq(a)}) = ${fq(y0)}`)]});
+    const line=[y0.sub(m.mul(a)),m];
+    steps.push({t:'Tangent line: y − y₁ = m(x − x₁)',m:`y − ${fqP(y0)} = ${fqP(m)}(${xh} − ${fqP(a)})`,lines:[M(`y = ${fpoly(line,v)}`)]});
+    return{answer:`y = ${fpoly(line,v)}`,sub:`Slope m = ${fq(m)} · Point (${fq(a)}, ${fq(y0)})`,steps}}
+  const a=numQ(as,'Value a');
+  steps.push({t:`Put ${xh} = ${fq(a)}`,m:`f(${fq(a)}) = ${R(subst(tree,{[v]:a}))} = ${fq(P.ev(F,a))}`});
+  return{answer:`f(${fq(a)}) = ${fq(P.ev(F,a))}`,sub:P.ev(F,a).int?'':'Decimal: '+decInfo(P.ev(F,a)).html,steps}}
+
+/* ================= MATRIX ================= */
+const matC=M=>`<span class="mat"><table>${M.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></span>`;
+const matB=M=>matC(M.map(r=>r.map(fq)));
+function parseMat(src,label){const rows=String(src).trim().split(/\s*[\n;]\s*/).filter(Boolean);if(!rows.length)throw new MErr(`Matrix ${label} is empty.`);const Mx=rows.map(r=>r.split(/[\s,]+/).filter(Boolean).map(x=>numQ(x,`Matrix ${label}`)));const c=Mx[0].length;if(Mx.some(r=>r.length!==c))throw new MErr(`Matrix ${label}: every row must have the same number of entries.`);if(Mx.length>5||c>5)throw new MErr('Matrices up to 5×5 only.');return Mx}
+function detFull(A,steps){const n=A.length;
+  if(n===1){steps.push({t:'Determinant',m:`det(A) = ${fq(A[0][0])}`});return A[0][0]}
+  if(n<=3){const d=detStep('det(A)',A);steps.push({t:'Determinant',m:d.m,lines:d.lines});return d.D}
+  const m=A.map(r=>r.slice());let sign=1;const ops=[];
+  for(let c=0;c<n;c++){let p=c;while(p<n&&m[p][c].z)p++;if(p===n){steps.push({t:'Determinant',n:`No pivot in column ${c+1}, so det = 0.`});return Z}if(p!==c){[m[c],m[p]]=[m[p],m[c]];sign=-sign;ops.push(`R${c+1} ↔ R${p+1} (sign changes)`)}for(let r=c+1;r<n;r++)if(!m[r][c].z){const f=m[r][c].div(m[c][c]);m[r]=m[r].map((x,j)=>x.sub(f.mul(m[c][j])));ops.push(`R${r+1} → R${r+1} − (${fq(f)})R${c+1}`)}}
+  let D=sign<0?ONE.neg():ONE;for(let i=0;i<n;i++)D=D.mul(m[i][i]);
+  steps.push({t:'Use row operations to make it upper triangular',lines:ops.map(o=>M(o)),m:matB(m)});
+  steps.push({t:'Determinant = product of the diagonal',m:`det(A) = ${sign<0?'−':''}${m.map((r,i)=>`(${fq(r[i])})`).join('')} = ${fq(D)}`});return D}
+function solveMatrix(op,as,bs){
+  const A=parseMat(as,'A'),needB=['add','sub','mul'].includes(op),Bm=needB?parseMat(bs,'B'):null,r=A.length,c=A[0].length;
+  const steps=[{t:'Matrices',m:`A = ${matB(A)}`+(Bm?` &nbsp; B = ${matB(Bm)}`:''),n:`A is ${r}×${c}`+(Bm?`, B is ${Bm.length}×${Bm[0].length}`:'')}];
+  if(op==='add'||op==='sub'){if(Bm.length!==r||Bm[0].length!==c)throw new MErr('To add or subtract, both matrices must be the same size.');const sym=op==='add'?'+':'−';const Rm=A.map((row,i)=>row.map((x,j)=>op==='add'?x.add(Bm[i][j]):x.sub(Bm[i][j])));steps.push({t:`${op==='add'?'Add':'Subtract'} the matching entries`,m:`A ${sym} B = ${matC(A.map((row,i)=>row.map((x,j)=>`${fq(x)} ${sym} ${fqP(Bm[i][j])}`)))} = ${matB(Rm)}`});return{answer:`A ${sym} B = ${matB(Rm)}`,steps}}
+  if(op==='mul'){if(c!==Bm.length)throw new MErr(`For A × B, the columns of A (${c}) must equal the rows of B (${Bm.length}).`);const Rm=A.map(row=>Bm[0].map((_,j)=>row.reduce((s,x,k)=>s.add(x.mul(Bm[k][j])),Z)));
+    steps.push({t:'Rule',n:'Each entry = row of A × column of B (first × first + second × second + …).'});
+    if(Rm.length*Rm[0].length<=16)Rm.forEach((row,i)=>row.forEach((vv,j)=>steps.push({t:`Row ${i+1} × Column ${j+1}`,m:A[i].map((x,k)=>`(${fq(x)})(${fq(Bm[k][j])})`).join(' + ')+` = ${fq(vv)}`})));
+    steps.push({t:'Answer',m:`A × B = ${matB(Rm)}`});return{answer:`A × B = ${matB(Rm)}`,steps}}
+  if(op==='tr'){const T=A[0].map((_,j)=>A.map(row=>row[j]));steps.push({t:'Turn rows into columns',m:`A<sup>T</sup> = ${matB(T)}`});return{answer:`A<sup>T</sup> = ${matB(T)}`,steps}}
+  if(r!==c)throw new MErr('Determinant and inverse exist only for square matrices (2×2, 3×3 …).');
+  if(op==='det'){const D=detFull(A,steps);return{answer:`det(A) = ${fq(D)}`,steps}}
+  if(r>3)throw new MErr('Inverse is supported up to 3×3.');
+  const D=detFull(A,steps);
+  if(D.z){steps.push({t:'det(A) = 0',n:'The determinant is 0, so there is no inverse (singular matrix).'});return{answer:'No inverse (det = 0)',steps}}
+  let adj;
+  if(r===1)adj=[[ONE]];
+  else if(r===2){const[[a,b],[cc,d]]=A;adj=[[d,b.neg()],[cc.neg(),a]];steps.push({t:'2×2 rule: swap a and d, change the signs of b and c',m:`adj(A) = ${matB(adj)}`})}
+  else{const cof=A.map((row,i)=>row.map((_,j)=>{const m=A.filter((_,ii)=>ii!==i).map(rw=>rw.filter((_,jj)=>jj!==j));const mn=m[0][0].mul(m[1][1]).sub(m[0][1].mul(m[1][0]));return(i+j)%2?mn.neg():mn}));
+    steps.push({t:'Cofactor matrix',m:`C = ${matB(cof)}`,n:'Each entry: remove its row and column, take the determinant of the remaining 2×2, then apply the sign (−1)<sup>i+j</sup>.'});
+    adj=cof[0].map((_,j)=>cof.map(row=>row[j]));steps.push({t:'Adjoint = transpose of the cofactor matrix',m:`adj(A) = ${matB(adj)}`})}
+  const inv=adj.map(row=>row.map(x=>x.div(D)));
+  steps.push({t:'Inverse = adj(A) ÷ det(A)',m:`A<sup>−1</sup> = ${fracH('1',fq(D))} × adj(A) = ${matB(inv)}`});
+  const Iq=A.map(row=>inv[0].map((_,j)=>row.reduce((s,x,k)=>s.add(x.mul(inv[k][j])),Z)));
+  if(!Iq.every((row,i)=>row.every((x,j)=>x.eq(i===j?ONE:Z))))throw new MErr('The internal check failed.');
+  return{answer:`A<sup>−1</sup> = ${matB(inv)}`,steps,check:[M(`A × A<sup>−1</sup> = ${matB(Iq)} = I ✓`)]}}
+
+/* ================= NUMBERS ================= */
+function solveNum(src){
+  const s=String(src).trim().replace(/,/g,'');if(!/^\d+$/.test(s))throw new MErr('Type one positive whole number, e.g. 360.');const n=Number(s);if(n<1||n>1e15)throw new MErr('Type a number from 1 to 1,000,000,000,000,000.');
+  const steps=[],f=factorN(n),mp=new Map();f.forEach(p=>mp.set(p,(mp.get(p)||0)+1));
+  steps.push({t:'Even or odd?',m:`${n} ÷ 2 → remainder ${n%2}`,n:n%2?'Remainder 1, so it is odd.':'Remainder 0, so it is even.'});
+  let kind;
+  if(n===1){kind='neither prime nor composite';steps.push({t:'Prime check',n:'1 has only one factor, so it is neither prime nor composite.'})}
+  else if(f.length===1){kind='Prime number';steps.push({t:'Prime check',m:`√${n} ≈ ${fmtD(Math.sqrt(n),2)}`,n:`No number up to ${Math.floor(Math.sqrt(n))} divides ${n} exactly, so it is prime.`})}
+  else{kind='Composite number';steps.push({t:'Prime check',m:`${n} = ${f[0]} × ${n/f[0]}`,n:`It divides exactly by ${f[0]}, so it is not prime (composite).`})}
+  if(n>1)steps.push({t:'Prime factorization',m:`${n} = ${f.join(' × ')} = ${ppH(mp)}`});
+  const es=[...mp.entries()],count=es.reduce((s,[,e])=>s*(e+1),1);let sum=1n;for(const[p,e]of es)sum*=(B(p)**B(e+1)-1n)/(B(p)-1n);
+  steps.push({t:'Number of factors',m:es.length?`(${es.map(([,e])=>e+' + 1').join(')(')}) = ${count}`:'1',n:'Add 1 to each prime\'s power, then multiply.'});
+  let facs=null;
+  if(count<=400){facs=[1];for(const[p,e]of es){const nw=[];for(const d of facs){let m=1;for(let k=0;k<=e;k++){nw.push(d*m);m*=p}}facs=nw}facs.sort((a,b)=>a-b);const pairs=[];for(let i=0;i<Math.ceil(facs.length/2);i++)pairs.push(`${facs[i]} × ${facs[facs.length-1-i]}`);steps.push({t:'All factors',m:facs.join(', '),lines:facs.length<=40?[`Pairs: ${pairs.join(' &nbsp;·&nbsp; ')}`]:[]})}
+  steps.push({t:'Sum of factors',m:''+sum});
+  const sqH=isSq(B(n))?`√${n} = ${isqrt(B(n))} &nbsp;<span class="ap">(perfect square)</span>`:(()=>{const[k,m]=surd(B(n));return`√${n} = ${surdH(k,m)} ≈ ${fmtD(Math.sqrt(n),4)}`})();
+  const cr=iroot(B(n),3n),cbH=cr**3n===B(n)?`∛${n} = ${cr} &nbsp;<span class="ap">(perfect cube)</span>`:`∛${n} ≈ ${fmtD(Math.cbrt(n),4)}`;
+  steps.push({t:'Square root and cube root',m:sqH,lines:[M(cbH)]});
+  steps.push({t:'Square and cube',m:`${n}<sup>2</sup> = ${B(n)**2n}, &nbsp; ${n}<sup>3</sup> = ${B(n)**3n}`});
+  if(f.reduce((a,b)=>a*B(b),1n)!==B(n)||(facs&&facs.length!==count))throw new MErr('The internal check failed.');
+  return{answer:`${n} — ${kind}`,sub:n>1?`${ppH(mp)} · ${count} factors · ${n%2?'odd':'even'}`:'',steps,check:[M(`${f.join(' × ')||'1'} = ${n} ✓`)]}}
+
+/* ================= RATIO ================= */
+function parseRatio(s,label){const parts=String(s).split(/\s*[:∶]\s*/).filter(x=>x.trim());if(parts.length<2)throw new MErr(`${label}: type at least two parts with ":", e.g. 12 : 18`);return parts.map(x=>numQ(x,label,{pos:true}))}
+function solveRatio(mode,r1,a2){
+  const steps=[];
+  if(mode==='simp'){const xs=parseRatio(r1,'Ratio');steps.push({t:'Ratio',m:xs.map(fq).join(' : ')});let ys=xs;const L=xs.reduce((m,x)=>lcmB(m,x.d),1n);
+    if(L>1n){ys=xs.map(x=>x.mul(new Q(L)));steps.push({t:`Multiply each part by ${L} to clear fractions/decimals`,m:ys.map(fq).join(' : ')})}
+    const g=ys.reduce((m,x)=>gcdB(m,x.n),0n),zs=ys.map(x=>x.n/g);
+    if(g>1n)steps.push({t:`The HCF of all parts is ${g} — divide each by ${g}`,m:ys.map(x=>`${x.n} ÷ ${g}`).join(' : ')+` = ${zs.join(' : ')}`});else steps.push({t:'HCF = 1',n:'The ratio is already in simplest form.'});
+    return{answer:zs.join(' : '),steps,check:[M(`In both ${xs.map(fq).join(' : ')} and ${zs.join(' : ')}, first ÷ second = ${fq(xs[0].div(xs[1]))} ✓`)]}}
+  if(mode==='prop'){const xs=parseRatio(r1,'First ratio');if(xs.length!==2)throw new MErr('Type two parts in the first ratio, e.g. 3 : 5');const[a,b]=xs,c=numQ(a2,'c',{pos:true}),x=b.mul(c).div(a);
+    steps.push({t:'Write the proportion',m:`${fq(a)} : ${fq(b)} = ${fq(c)} : <i>x</i>`,n:'Two equal ratios form a proportion.'});
+    steps.push({t:'Cross multiply',m:`${fq(a)} × <i>x</i> = ${fq(b)} × ${fq(c)} = ${fq(b.mul(c))}`});
+    steps.push({t:`Divide both sides by ${fq(a)}`,m:`<i>x</i> = ${fracH(fq(b.mul(c)),fq(a))} = ${nice(x)}`});
+    return{answer:`<i>x</i> = ${nice(x)}`,steps,check:[M(`${fracH(fq(a),fq(b))} = ${fq(a.div(b))} and ${fracH(fq(c),fq(x))} = ${fq(c.div(x))} ✓`)]}}
+  const xs=parseRatio(r1,'Ratio'),T=numQ(a2,'Total amount',{pos:true}),S=xs.reduce((s,x)=>s.add(x),Z),sh=xs.map(x=>T.mul(x).div(S));
+  steps.push({t:'Sum of the parts',m:`${xs.map(fq).join(' + ')} = ${fq(S)}`});
+  xs.forEach((x,i)=>steps.push({t:`Share ${i+1}`,m:`${fracH(fq(x),fq(S))} × ${fq(T)} = ${nice(sh[i])}`}));
+  if(!sh.reduce((s,x)=>s.add(x),Z).eq(T))throw new MErr('The internal check failed.');
+  return{answer:sh.map((x,i)=>`Share ${i+1} = ${nice(x)}`).join(' &nbsp;·&nbsp; '),steps,check:[M(`${sh.map(x=>nice(x)).join(' + ')} = ${fq(T)} ✓`)]}}
+
+/* ================= SEQUENCE (AP / GP) ================= */
+function solveSeq(type,as,ds,ns){
+  const a=numQ(as,'First term (a)'),d=numQ(ds,type==='ap'?'Common difference (d)':'Common ratio (r)'),N=numQ(ns,'Terms (n)',{pos:true});
+  if(!N.int)throw new MErr('n must be a whole number.');const n=N.n;const steps=[];
+  if(type==='ap'){if(n>1000000n)throw new MErr('n is supported up to 1,000,000.');const nq=new Q(n),Tn=a.add(nq.sub(ONE).mul(d)),Sn=nq.div(q(2)).mul(a.mul(q(2)).add(nq.sub(ONE).mul(d)));
+    const k=Number(n<10n?n:10n),terms=Array.from({length:k},(_,i)=>a.add(q(i).mul(d)));
+    steps.push({t:'First few terms',m:terms.map(fq).join(', ')+(n>10n?', …':''),n:`Each term adds ${fq(d)}.`});
+    steps.push({t:'n-th term: a + (n − 1)d',m:`T<sub>${n}</sub> = ${fq(a)} + (${n} − 1) × ${fqP(d)} = ${fq(Tn)}`});
+    steps.push({t:'Sum: n/2 × [2a + (n − 1)d]',m:`S<sub>${n}</sub> = ${fracH(''+n,'2')} × [2 × ${fqP(a)} + (${n} − 1) × ${fqP(d)}] = ${fq(Sn)}`});
+    if(n<=2000n){let s=Z;for(let i=0n;i<n;i++)s=s.add(a.add(new Q(i).mul(d)));if(!s.eq(Sn))throw new MErr('The internal check failed.')}
+    return{answer:`T<sub>${n}</sub> = ${nice(Tn)} &nbsp;·&nbsp; S<sub>${n}</sub> = ${nice(Sn)}`,steps,check:n<=2000n?[`Adding all ${n} terms one by one gives the same ${fq(Sn)} ✓`]:[]}}
+  if(n>500n)throw new MErr('For a GP, n is supported up to 500.');
+  const r=d,Tn=a.mul(powQ(r,n-1n));const k=Number(n<8n?n:8n),terms=Array.from({length:k},(_,i)=>a.mul(r.pow(B(i))));
+  steps.push({t:'First few terms',m:terms.map(fq).join(', ')+(n>8n?', …':''),n:`Each term is multiplied by ${fq(r)}.`});
+  steps.push({t:'n-th term: a × r<sup>n − 1</sup>',m:`T<sub>${n}</sub> = ${fqP(a)} × ${fqP(r)}<sup>${n-1n}</sup> = ${fq(Tn)}`});
+  let Sn;
+  if(r.eq(ONE)){Sn=a.mul(new Q(n));steps.push({t:'r = 1, so the sum = n × a',m:`S<sub>${n}</sub> = ${n} × ${fqP(a)} = ${fq(Sn)}`})}
+  else{Sn=a.mul(powQ(r,n).sub(ONE)).div(r.sub(ONE));steps.push({t:'Sum: a(r<sup>n</sup> − 1) ÷ (r − 1)',m:`S<sub>${n}</sub> = ${fracH(`${fqP(a)}(${fqP(r)}<sup>${n}</sup> − 1)`,`${fqP(r)} − 1`)} = ${fq(Sn)}`})}
+  let extra='';
+  if(r.abs().cmp(ONE)<0){const Si=a.div(ONE.sub(r));steps.push({t:'Sum to infinity (|r| < 1)',m:`S<sub>∞</sub> = ${fracH(fq(a),`1 − ${fqP(r)}`)} = ${fq(Si)}`});extra=` &nbsp;·&nbsp; S<sub>∞</sub> = ${nice(Si)}`}
+  if(n<=200n){let s=Z;for(let i=0n;i<n;i++)s=s.add(a.mul(r.pow(i)));if(!s.eq(Sn))throw new MErr('The internal check failed.')}
+  return{answer:`T<sub>${n}</sub> = ${nice(Tn)} &nbsp;·&nbsp; S<sub>${n}</sub> = ${nice(Sn)}${extra}`,steps,check:n<=200n?[`Adding all ${n} terms one by one gives the same answer ✓`]:[]}}
+
+/* ================= UNIT CONVERT ================= */
+const UNITS={
+  length:{name:'Length',base:'m',u:[['mm','Millimeter (mm)','0.001'],['cm','Centimeter (cm)','0.01'],['m','Meter (m)','1'],['km','Kilometer (km)','1000'],['in','Inch','0.0254'],['ft','Foot','0.3048'],['yd','Yard','0.9144'],['mi','Mile','1609.344']]},
+  mass:{name:'Mass (weight)',base:'g',u:[['mg','Milligram (mg)','0.001'],['g','Gram (g)','1'],['kg','Kilogram (kg)','1000'],['t','Tonne','1000000'],['oz','Ounce','28.349523125'],['lb','Pound','453.59237']]},
+  area:{name:'Area',base:'m²',u:[['cm2','cm²','0.0001'],['m2','m²','1'],['ft2','ft² (square feet)','0.09290304'],['marla','Marla (272.25 ft²)','25.29285264'],['kanal','Kanal (20 marla)','505.8570528'],['acre','Acre','4046.8564224'],['ha','Hectare','10000'],['km2','km²','1000000']]},
+  volume:{name:'Volume',base:'L',u:[['ml','Milliliter (mL)','0.001'],['l','Liter (L)','1'],['cm3','cm³','0.001'],['m3','m³','1000'],['gal','Gallon (US)','3.785411784'],['ft3','ft³','28.316846592']]},
+  time:{name:'Time',base:'second',u:[['s','Second','1'],['min','Minute','60'],['h','Hour','3600'],['d','Day','86400'],['w','Week','604800'],['y','Year (365 days)','31536000']]},
+  speed:{name:'Speed',base:'m/s',u:[['ms','m/s','1'],['kmh','km/h','5/18'],['mph','mile/h','0.44704'],['kn','Knot','463/900']]},
+  temp:{name:'Temperature',u:[['c','Celsius (°C)'],['f','Fahrenheit (°F)'],['k','Kelvin (K)']]}};
+function niceD(x,dp=6){const di=decInfo(x);if(di.term&&di.html.length<=16)return di.html;return '≈ '+grp(decStr(x.abs(),dp)).replace(/^/,x.n<0n?'−':'')}
+function solveConv(cat,from,to,vs){
+  const C=UNITS[cat],x=numQ(vs,'Value'),steps=[];const nm=k=>C.u.find(u=>u[0]===k)[1];
+  if(cat==='temp'){
+    let c;
+    if(from==='c')c=x;else if(from==='f'){c=x.sub(q(32)).mul(q(5,9));steps.push({t:'Convert to Celsius first',m:`°C = (${fq(x)} − 32) × ${fracH('5','9')} = ${niceD(c,4)}`})}else{c=x.sub(qFromStr('273.15'));steps.push({t:'Convert to Celsius first',m:`°C = ${fq(x)} − 273.15 = ${niceD(c,4)}`})}
+    if(c.cmp(qFromStr('-273.15'))<0)throw new MErr('This temperature is below absolute zero (−273.15 °C) — not possible.');
+    let r;if(to==='c')r=c;else if(to==='f'){r=c.mul(q(9,5)).add(q(32));steps.push({t:'Fahrenheit formula',m:`°F = ${fqP(c)} × ${fracH('9','5')} + 32 = ${niceD(r,4)}`})}else{r=c.add(qFromStr('273.15'));steps.push({t:'Kelvin formula',m:`K = ${fqP(c)} + 273.15 = ${niceD(r,4)}`})}
+    if(!steps.length)steps.push({t:'Same unit',m:niceD(r,4)});
+    return{answer:`${fq(x)} ${nm(from)} = ${niceD(r,4)} ${nm(to)}`,steps}}
+  const f1=numQ(C.u.find(u=>u[0]===from)[2],'f'),f2=numQ(C.u.find(u=>u[0]===to)[2],'f'),k=f1.div(f2),r=x.mul(k);
+  steps.push({t:'Express both units in the base unit',lines:[M(`1 ${nm(from)} = ${fq(f1)} ${C.base}`),M(`1 ${nm(to)} = ${fq(f2)} ${C.base}`)]});
+  steps.push({t:'Conversion factor',m:`1 ${nm(from)} = ${fracH(fq(f1),fq(f2))} = ${niceD(k)} ${nm(to)}`});
+  steps.push({t:'Value × factor',m:`${fq(x)} × ${niceD(k)} = ${niceD(r)}`});
+  return{answer:`${fq(x)} ${nm(from)} = ${niceD(r)} ${nm(to)}`,steps,check:[M(`Reverse: ${niceD(r)} ${nm(to)} ÷ ${niceD(k)} = ${fq(r.div(k))} ${nm(from)} ✓`)]}}
+
+
+/* ================= SHARED: exact / float evaluation, rational functions ================= */
+class NonAlg extends MErr{}
+class DZ extends Error{}
+const fixPow=s=>s.replace(/(^|[^a-zA-Z])([a-zA-Z])(\d)/g,'$1$2^$3');
+function hasVar(n,v){switch(n.t){case'var':return n.name===v;case'neg':return hasVar(n.a,v);case'fn':return n.args.some(a=>hasVar(a,v));case'bin':return hasVar(n.l,v)||hasVar(n.r,v);default:return false}}
+function hasFn(n,names){switch(n.t){case'neg':return hasFn(n.a,names);case'fn':return names.includes(n.name)||n.args.some(a=>hasFn(a,names));case'bin':return hasFn(n.l,names)||hasFn(n.r,names);default:return false}}
+function fv(n,v,x){switch(n.t){
+  case'num':return toF(n.v);case'var':return n.name===v?x:NaN;case'pi':return Math.PI;case'e':return Math.E;
+  case'neg':return -fv(n.a,v,x);
+  case'fn':{const a=n.args.map(t=>fv(t,v,x)),k=ANG==='deg'?Math.PI/180:1,u=a[0];switch(n.name){
+    case'sqrt':return Math.sqrt(u);case'cbrt':return Math.cbrt(u);case'abs':return Math.abs(u);
+    case'sin':return Math.sin(u*k);case'cos':return Math.cos(u*k);case'tan':{const c=Math.cos(u*k);return Math.abs(c)<1e-15?NaN:Math.sin(u*k)/c}
+    case'asin':return Math.asin(u)/k;case'acos':return Math.acos(u)/k;case'atan':return Math.atan(u)/k;
+    case'log':return Math.log(u)/Math.log(a.length>1?a[1]:10);case'ln':return Math.log(u);case'exp':return Math.exp(u);
+    case'deg':return ANG==='deg'?u:u*Math.PI/180;
+    case'fact':{if(u<0||u!==Math.floor(u)||u>170)return NaN;let r=1;for(let i=2;i<=u;i++)r*=i;return r}
+    case'ncr':case'npr':{const m=a[1];if(u!==Math.floor(u)||m!==Math.floor(m)||m<0||m>u)return NaN;let r=1;for(let i=1;i<=m;i++)r=n.name==='ncr'?r*(u-m+i)/i:r*(u-i+1);return r}}
+    return NaN}
+  case'bin':{const a=fv(n.l,v,x),b=fv(n.r,v,x);switch(n.op){case'+':return a+b;case'-':return a-b;case'*':return a*b;case'/':return b===0?NaN:a/b;
+    case'^':{if(a<0&&b!==Math.round(b)){if(n.r.t==='num'&&isQ(n.r.v)&&n.r.v.d%2n===1n){const r=Math.pow(-a,b);return n.r.v.n%2n===0n?r:-r}return NaN}if(a===0&&b<0)return NaN;return Math.pow(a,b)}}}}
+  return NaN}
+function evalQ(n,v,val){switch(n.t){
+  case'num':return isQ(n.v)?n.v:null;case'var':return n.name===v?val:null;case'pi':case'e':return null;
+  case'neg':{const a=evalQ(n.a,v,val);return a?a.neg():null}
+  case'fn':{const a=n.args.map(t=>evalQ(t,v,val));if(a.some(x=>!x))return null;try{const r=fnApply(n.name,a);return isQ(r.v)?r.v:null}catch(e){return null}}
+  case'bin':{const a=evalQ(n.l,v,val),b=evalQ(n.r,v,val);
+    if(n.op==='/'&&b&&b.z)throw new DZ();if(n.op==='^'&&a&&a.z&&b&&b.sgn()<0)throw new DZ();
+    if(!a||!b)return null;
+    if(n.op==='+')return a.add(b);if(n.op==='-')return a.sub(b);if(n.op==='*')return a.mul(b);if(n.op==='/')return a.div(b);
+    try{if(b.int&&absB(b.n)<=64n)return powQ(a,b.n);const r=doBin('^',a,b);return isQ(r.v)?r.v:null}catch(e){return null}}}
+  return null}
+/* polynomial helpers over Q */
+function pDivmod(a,b){a=P.trim(a.slice());b=P.trim(b.slice());if(P.isZ(b))throw new MErr(DIV0);const db=b.length-1,lb=b[db];if(a.length-1<db)return[[Z],a];
+  const qq=Array(a.length-db).fill(Z),r=a.slice();for(let i=r.length-1;i>=db;i--){const c=r[i].div(lb);qq[i-db]=c;if(c.z)continue;for(let j=0;j<=db;j++)r[i-db+j]=r[i-db+j].sub(c.mul(b[j]))}
+  return[P.trim(qq),db===0?[Z]:P.trim(r.slice(0,db))]}
+function pMonic(a){const l=a[a.length-1];return a.map(c=>c.div(l))}
+function pGcd(a,b){a=P.trim(a);b=P.trim(b);while(!P.isZ(b)){[a,b]=[b,pDivmod(a,b)[1]]}return P.isZ(a)?[ONE]:pMonic(a)}
+function ratNorm(N,D){N=P.trim(N);D=P.trim(D);if(P.isZ(D))throw new MErr(DIV0);if(P.isZ(N))return{N:[Z],D:[ONE]};const g=pGcd(N,D);if(g.length>1){N=pDivmod(N,g)[0];D=pDivmod(D,g)[0]}const l=D[D.length-1];return{N:N.map(c=>c.div(l)),D:D.map(c=>c.div(l))}}
+function evalRat(n,v,dens){
+  const cst=x=>({N:[x],D:[ONE]}),isC=r=>r.N.length===1&&r.D.length===1,cv=r=>r.N[0].div(r.D[0]);
+  const big=r=>{if(r.N.length>13||r.D.length>13)throw new NonAlg('degree');return r};
+  switch(n.t){
+    case'num':if(!isQ(n.v))throw new NonAlg('num');return cst(n.v);
+    case'var':if(n.name!==v)throw new MErr(`Variable "${n.name}" was not expected here.`);return{N:[Z,ONE],D:[ONE]};
+    case'pi':case'e':throw new NonAlg('const');
+    case'neg':{const a=evalRat(n.a,v,dens);return{N:P.neg(a.N),D:a.D}}
+    case'fn':{const as=n.args.map(x=>evalRat(x,v,dens));if(!as.every(isC))throw new NonAlg('fn');const r=fnApply(n.name,as.map(cv));if(!isQ(r.v))throw new NonAlg('fnval');return cst(r.v)}
+    case'bin':{const a=evalRat(n.l,v,dens),b=evalRat(n.r,v,dens);
+      if(n.op==='+')return big(ratNorm(P.add(P.mul(a.N,b.D),P.mul(b.N,a.D)),P.mul(a.D,b.D)));
+      if(n.op==='-')return big(ratNorm(P.sub(P.mul(a.N,b.D),P.mul(b.N,a.D)),P.mul(a.D,b.D)));
+      if(n.op==='*')return big(ratNorm(P.mul(a.N,b.N),P.mul(a.D,b.D)));
+      if(n.op==='/'){if(P.isZ(b.N))throw new MErr(DIV0);if(b.N.length>1)dens.push(b.N);return big(ratNorm(P.mul(a.N,b.D),P.mul(a.D,b.N)))}
+      if(n.op==='^'){if(!isC(b))throw new NonAlg('varexp');const e=cv(b);if(!e.int){if(isC(a)){try{const r=doBin('^',cv(a),e);if(isQ(r.v))return cst(r.v)}catch(err){}}throw new NonAlg('fracexp')}if(isC(a))return cst(powQ(cv(a),e.n));if(absB(e.n)>12n)throw new NonAlg('bigexp');
+        let r={N:[ONE],D:[ONE]};for(let i=0n;i<absB(e.n);i++)r={N:P.mul(r.N,a.N),D:P.mul(r.D,a.D)};if(e.n<0n){if(a.N.length>1)dens.push(a.N);if(P.isZ(a.N))throw new MErr(DIV0);r={N:r.D,D:r.N}}return big(ratNorm(r.N,r.D))}}}
+  throw new NonAlg('?')}
+const intPoly=p=>{const L=p.reduce((m,c)=>lcmB(m,c.d),1n);let a=p.map(c=>c.mul(new Q(L)).n);const g=a.reduce((m,c)=>gcdB(m,c),0n)||1n;a=a.map(c=>c/g);if(a[a.length-1]<0n)a=a.map(c=>-c);return a};
+function realRoots(p){p=P.trim(p);if(p.length<2)return[];const roots=[];solvePolyInt(intPoly(p),'x',[],roots);const out=[];
+  for(const r of roots){if(r.k==='q')out.push({v:r.q.num(),html:fq(r.q),q:r.q,mult:r.mult||1});
+    else if(r.k==='s'){if(r.im)continue;const re=Number(r.B)/Number(r.d),sq=Number(r.K)*Math.sqrt(Number(r.m))/Number(r.d);out.push({v:re-sq,html:pmH(r.B,r.K,r.m,r.d,false,-1),mult:1},{v:re+sq,html:pmH(r.B,r.K,r.m,r.d,false,1),mult:1})}
+    else if(!r.im)out.push({v:r.re,html:'≈ '+fmtD(r.re,6),mult:1})}
+  out.sort((a,b)=>a.v-b.v);const u=[];for(const r of out){const l=u[u.length-1];if(l&&Math.abs(l.v-r.v)<=1e-9*Math.max(1,Math.abs(r.v))){l.mult+=r.mult;continue}u.push(r)}return u}
+function verifyRootQ(lt,rt,v,qv){
+  try{const a=evalQ(lt,v,qv),b=evalQ(rt,v,qv);if(a&&b)return a.eq(b)?{ok:true,exact:true,l:a,r:b}:{ok:false}}catch(e){if(e instanceof DZ)return{ok:false,dz:true};throw e}
+  const a=fv(lt,v,qv.num()),b=fv(rt,v,qv.num());if(!isFinite(a)||!isFinite(b))return{ok:false,dz:true};return{ok:Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b)),l:a,r:b}}
+
+/* ================= EQUATION (one variable) ================= */
+function solveEq(src){
+  if(!src.trim())throw new MErr('Type an equation first, e.g. 2x + 3 = 11');
+  const toks=tokenize(fixPow(src),{calc:true});
+  const eqI=toks.map((t,i)=>t.k==='='?i:-1).filter(i=>i>=0);
+  if(eqI.length>1)throw new MErr('An equation must have only one "=".');
+  const vars=[...new Set(toks.filter(t=>t.k==='var').map(t=>t.v))];
+  if(!vars.length)throw new MErr('There is no variable (like x). Do plain arithmetic in the Calculator.');
+  if(vars.length>1)throw new MErr(`There are ${vars.length} variables (${vars.join(', ')}). Use the Simultaneous tool for more than one variable.`);
+  const v=vars[0];
+  const lt=parse(eqI.length?toks.slice(0,eqI[0]):toks),rt=eqI.length?parse(toks.slice(eqI[0]+1)):{t:'num',v:Z};
+  const keep=ANG;ANG='deg';
+  try{
+    const steps=[{t:'Question (as understood)',m:`${R(lt)} = ${R(rt)}`,n:eqI.length?'':'There was no "=", so "= 0" was assumed.'}];
+    const dens=[];let Ls,Rs;
+    try{Ls=evalRat(lt,v,dens);Rs=evalRat(rt,v,dens)}catch(e){if(e instanceof NonAlg)return solveEqNumeric(lt,rt,v,steps);throw e}
+    if(Ls.D.length===1&&Rs.D.length===1&&!dens.length)return solvePolyEq(Ls.N,Rs.N,v,lt,rt,steps,null);
+    const x=`<i>${v}</i>`,excl=[];
+    for(const d of dens)for(const r of realRoots(d))if(!excl.some(e=>Math.abs(e.v-r.v)<=1e-9*Math.max(1,Math.abs(r.v))))excl.push(r);
+    excl.sort((a,b)=>a.v-b.v);
+    if(excl.length)steps.push({t:'Values that are not allowed',m:excl.map(e=>`${x} ≠ ${e.html}`).join(', &nbsp;'),n:'These make a denominator 0, so they can never be answers.'});
+    const side=r=>r.D.length===1?fpoly(r.N,v):fracH(fpoly(r.N,v),fpoly(r.D,v));
+    steps.push({t:'Write each side as a single fraction',m:`${side(Ls)} = ${side(Rs)}`});
+    const G=pGcd(Ls.D,Rs.D),LCD=P.mul(Ls.D,pDivmod(Rs.D,G)[0]);
+    const L1=P.mul(Ls.N,pDivmod(Rs.D,G)[0]),R1=P.mul(Rs.N,pDivmod(Ls.D,G)[0]);
+    steps.push({t:`Multiply both sides by ${LCD.length>1?'('+fpoly(LCD,v)+')':fq(LCD[0])}`,m:`${fpoly(L1,v)} = ${fpoly(R1,v)}`,n:'This clears the fractions (cross-multiplying).'});
+    return solvePolyEq(L1,R1,v,lt,rt,steps,{excl});
+  }finally{ANG=keep}}
+function solvePolyEq(L0,R0,v,lt,rt,steps,rat){
+  const x=`<i>${v}</i>`;const exclTxt=rat&&rat.excl.length?` except ${rat.excl.map(e=>`${x} = ${e.html}`).join(', ')}`:'';
+  if(!rat&&(R(lt)!==fpoly(L0,v)||R(rt)!==fpoly(R0,v)))steps.push({t:'Expand brackets and simplify',m:`${fpoly(L0,v)} = ${fpoly(R0,v)}`,n:'Like terms have been combined.'});
+  const Pd=P.sub(L0,R0);
+  const rejected=[];
+  const chk=(qv)=>{const r=verifyRootQ(lt,rt,v,qv);if(r.ok)return r;if(rat&&r.dz){rejected.push(fq(qv));return null}throw new MErr('The internal check failed.')};
+  const rejStep=()=>{if(rejected.length)steps.push({t:'Reject values that are not allowed',m:rejected.map(h=>`${x} = ${h}`).join(', '),n:'Putting this back into the original equation makes a denominator 0, so it is not a real answer (an extraneous root).'})};
+  if(Pd.length===1){
+    if(Pd[0].z){steps.push({t:'Both sides are identical',m:`${fpoly(L0,v)} = ${fpoly(R0,v)}`,n:`${x} cancels out and both sides are always equal.`});return{answer:`Every value of ${x} works${exclTxt}`,sub:'Infinitely many solutions (identity)',steps}}
+    steps.push({t:`${x} cancelled out`,m:`0 = ${fq(Pd[0].neg())}`,n:'This is false, so no value can make the equation true.'});return{answer:'No solution',sub:'No solution — the equation is never true',steps}}
+  if(Pd.length===2){
+    let L=L0,Rr=R0;
+    if(L.length>2||Rr.length>2){steps.push({t:'All terms on one side',m:`${fpoly(Pd,v)} = 0`,n:`The higher powers of ${x} cancel.`});L=Pd;Rr=[Z]}
+    let aL=L[1]||Z,bL=L[0]||Z,aR=Rr[1]||Z,bR=Rr[0]||Z;
+    if(!aR.z){const t=aR.sgn()>0?`Subtract ${termH(aR,v,1)} from both sides`:`Add ${termH(aR.neg(),v,1)} to both sides`;aL=aL.sub(aR);aR=Z;steps.push({t,m:`${fpoly([bL,aL],v)} = ${fq(bR)}`,n:`${x} terms on the left side.`})}
+    if(!bL.z){const t=bL.sgn()>0?`Subtract ${fq(bL)} from both sides`:`Add ${fq(bL.neg())} to both sides`;bR=bR.sub(bL);bL=Z;steps.push({t,m:`${termH(aL,v,1)} = ${fq(bR)}`,n:'Numbers on the right side.'})}
+    const sol=bR.div(aL);
+    if(!aL.eq(ONE))steps.push({t:`Divide both sides by ${fq(aL)}`,m:`${x} = ${fq(bR)} ÷ ${fqP(aL)} = ${fq(sol)}`,n:aL.int?'':'Dividing by a fraction = multiplying by its reciprocal.'});
+    const c=chk(sol);if(!c){rejStep();return{answer:'No solution',sub:'The only candidate makes a denominator 0',steps}}
+    const di=decInfo(sol);
+    return{answer:`${x} = ${fq(sol)}`,sub:sol.int?'':`Decimal: ${di.html}`,steps,check:[`Put ${x} = ${fq(sol)} back into the original question:`,M(`Left: ${R(subst(lt,{[v]:sol}))} = ${vH(c.l)}`),M(`Right: ${R(subst(rt,{[v]:sol}))} = ${vH(c.r)}`),'Both sides are equal, so the answer is correct ✓']}}
+  let Pc=Pd;
+  if(!P.isZ(R0))steps.push({t:'All terms on one side (= 0)',m:`${fpoly(Pc,v)} = 0`});
+  if(Pc[Pc.length-1].n<0n){Pc=P.neg(Pc);steps.push({t:'Multiply both sides by −1',m:`${fpoly(Pc,v)} = 0`,n:'To make the first term positive.'})}
+  const Lm=Pc.reduce((m,c)=>lcmB(m,c.d),1n);
+  if(Lm>1n){Pc=Pc.map(c=>c.mul(new Q(Lm)));steps.push({t:`Multiply every term by ${Lm}`,m:`${fpoly(Pc,v)} = 0`,n:`${Lm} is the LCM of the denominators — this clears the fractions.`})}
+  const g=Pc.reduce((m,c)=>gcdB(m,c.n),0n);
+  if(g>1n){Pc=Pc.map(c=>c.div(new Q(g)));steps.push({t:`Divide every term by ${g}`,m:`${fpoly(Pc,v)} = 0`})}
+  const roots=[];solvePolyInt(Pc.map(c=>c.n),v,steps,roots);
+  const qmap=new Map();const others=[];
+  for(const r of roots){if(r.k==='q'){const key=r.q.n+'/'+r.q.d;if(qmap.has(key))qmap.get(key).mult+=r.mult;else qmap.set(key,{...r})}else others.push(r)}
+  const qs=[...qmap.values()].sort((a,b)=>a.q.cmp(b.q));
+  const ans=[],sub=[],check=[];const PdF=Pd.map(c=>c.num());const scale=(z)=>PdF.reduce((s,c,i)=>s+Math.abs(c)*Math.pow(Math.hypot(z[0],z[1]),i),0);
+  for(const r of qs){const c=chk(r.q);if(!c)continue;ans.push(`${x} = ${fq(r.q)}${r.mult>1?` <small>(${r.mult} times)</small>`:''}`);check.push(M(`${x} = ${fq(r.q)}: &nbsp; Left = ${vH(c.l)}, Right = ${vH(c.r)} ✓`));if(!r.q.int)sub.push(`${fq(r.q)} = ${decInfo(r.q).html}`)}
+  for(const r of others){
+    let vals;const keepAns=ans.length;
+    if(r.k==='s'){const re=Number(r.B)/Number(r.d),sq=Number(r.K)*Math.sqrt(Number(r.m))/Number(r.d);vals=r.im?[[re,sq],[re,-sq]]:[[re+sq,0],[re-sq,0]]}
+    else vals=r.im?[[r.re,r.im],[r.re,-r.im]]:[[r.re,0]];
+    for(const z of vals){const res=cEv(PdF,z);const mag=Math.hypot(res[0],res[1]);if(mag>1e-6*Math.max(1,scale(z)))throw new MErr('The internal check failed — the numerical answer is not certain, so it is not shown.')}
+    if(rat&&vals.some(z=>!z[1]&&rat.excl.some(e=>Math.abs(e.v-z[0])<=1e-9*Math.max(1,Math.abs(z[0]))))){rejected.push(r.k==='s'?pmH(r.B,r.K,r.m,r.d,false,0):'≈ '+fmtD(r.re,6));continue}
+    if(r.k==='s'){ans.push(`${x} = ${pmH(r.B,r.K,r.m,r.d,r.im,0)}`);const re=vals[0][0],sq=Math.abs(vals[0][1]||vals[0][0]-re);sub.push(r.im?`≈ ${fmtD(re)} ± ${fmtD(Math.abs(vals[0][1]))}<i>i</i>`:`≈ ${fmtD(vals[0][0])} and ${fmtD(vals[1][0])}`)}
+    else ans.push(r.im?`${x} ≈ ${fmtD(r.re,6)} ± ${fmtD(r.im,6)}<i>i</i>`:`${x} ≈ ${fmtD(r.re,6)}`);
+    check.push(M(`${x} ≈ ${vals.map(z=>z[1]?`${fmtD(z[0])} ${z[1]<0?'−':'+'} ${fmtD(Math.abs(z[1]))}<i>i</i>`:fmtD(z[0])).join(', ')}: &nbsp; Left − Right ≈ 0 ✓`))}
+  rejStep();
+  if(!ans.length){if(rejected.length)return{answer:'No solution',sub:'Every candidate makes a denominator 0',steps};throw new MErr('Could not find an answer.')}
+  const realCount=qs.length+others.filter(r=>!r.im).length;
+  return{answer:ans.join(' &nbsp;<span class="ap">or</span>&nbsp; '),sub:[...sub,realCount===0?'No real roots — only complex roots.':''].filter(Boolean).join(' &nbsp;·&nbsp; '),steps,check:['Each root was put back into the original equation:',...check]}}
+
+/* ---------- numerical solver for any equation ---------- */
+function cfSnap(r){if(!isFinite(r)||Math.abs(r)>1e12)return null;let h0=1,h1=Math.floor(r),k0=0,k1=1,f=r-Math.floor(r);const out=[[h1,k1]];
+  for(let i=0;i<20&&f>1e-15;i++){const a=Math.floor(1/f);f=1/f-a;[h0,h1]=[h1,a*h1+h0];[k0,k1]=[k1,a*k1+k0];if(k1>1000)break;out.push([h1,k1])}
+  for(const[h,k]of out)if(Math.abs(h/k-r)<=1e-9*Math.max(1,Math.abs(r)))return new Q(B(h),B(k));return null}
+function solveEqNumeric(lt,rt,v,steps){
+  const x=`<i>${v}</i>`;const L=t=>fv(lt,v,t),Rf=t=>fv(rt,v,t),f=t=>L(t)-Rf(t),sc=t=>Math.max(1,Math.abs(L(t)),Math.abs(Rf(t)));
+  const trig=hasFn(lt,['sin','cos','tan'])||hasFn(rt,['sin','cos','tan']);
+  steps.push({t:'Move everything to one side',m:`f(${x}) = ${R(lt)} − (${R(rt)}) = 0`});
+  const expo=(a,b)=>{if(a.t==='bin'&&a.op==='^'&&!hasVar(a.l,v)&&hasVar(a.r,v)&&!hasVar(b,v)){const base=fv(a.l,v,0),c=fv(b,v,0);if(base>0&&base!==1&&c>0){
+      const isE=a.l.t==='e',val=Math.log(c)/Math.log(base);const lines=[M(`${R(a.r)} = ${isE?`ln(${R(b)})`:fracH(`log(${R(b)})`,`log(${R(a.l)})`)} ≈ ${fmtF(val)}`)];
+      const li=lin(a.r,v);if(li&&!(li[0].z&&li[1].eq(ONE)))lines.push(M(`${x} = ${fracH(`${fmtF(val)}${li[0].z?'':` − (${fq(li[0])})`}`,fq(li[1]))} ≈ ${fmtF((val-li[0].num())/li[1].num())}`));
+      steps.push({t:isE?'Take ln of both sides':'Take log of both sides',m:`${R(a.r)} × ${isE?'ln e':`log(${R(a.l)})`} = ${isE?`ln(${R(b)})`:`log(${R(b)})`}`,lines,n:'A power with x in the exponent is undone with a logarithm.'})}}};
+  expo(lt,rt);expo(rt,lt);
+  let pts=[];
+  if(trig){for(let i=0;i<=36000;i++)pts.push(i/100)}
+  else{for(let i=-20000;i<=20000;i++)pts.push(i/200);let t=100;while(t<1e6){t*=1.01;pts.push(t,-t)}t=0.005;while(t>1e-9){t/=1.08;pts.push(t,-t)}pts.sort((a,b)=>a-b)}
+  const ys=pts.map(f);const cand=[],intervals=[];
+  for(let i=0;i<pts.length;i++){
+    if(ys[i]===0){cand.push(pts[i]);continue}
+    if(i>0&&isFinite(ys[i-1])&&isFinite(ys[i])&&ys[i-1]!==0&&Math.sign(ys[i-1])!==Math.sign(ys[i])){let a=pts[i-1],b=pts[i],fa=ys[i-1];for(let k=0;k<200;k++){const m=(a+b)/2;if(m===a||m===b)break;const fm=f(m);if(!isFinite(fm))break;if(fm===0){a=b=m;break}if(Math.sign(fm)===Math.sign(fa)){a=m;fa=fm}else b=m}
+      const r=Math.abs(f(a))<=Math.abs(f(b))?a:b;if(Math.abs(f(r))<=1e-9*sc(r)){cand.push(r);if(intervals.length<8)intervals.push([pts[i-1],pts[i],ys[i-1],ys[i]])}}
+    if(i>0&&i<pts.length-1&&[ys[i-1],ys[i],ys[i+1]].every(isFinite)&&Math.sign(ys[i-1])===Math.sign(ys[i])&&Math.sign(ys[i])===Math.sign(ys[i+1])&&Math.abs(ys[i])<Math.abs(ys[i-1])&&Math.abs(ys[i])<=Math.abs(ys[i+1])&&Math.abs(ys[i])<1e-3*sc(pts[i])){
+      let a=pts[i-1],b=pts[i+1];const g=(Math.sqrt(5)-1)/2;for(let k=0;k<200;k++){const c=b-g*(b-a),d=a+g*(b-a);if(Math.abs(f(c))<Math.abs(f(d)))b=d;else a=c}const m=(a+b)/2;if(Math.abs(f(m))<=1e-10*sc(m))cand.push(m)}}
+  cand.sort((a,b)=>a-b);const roots=[];for(const r of cand){if(trig&&r>=360-1e-9)continue;const l=roots[roots.length-1];if(l!==undefined&&Math.abs(l-r)<=1e-7*Math.max(1,Math.abs(r)))continue;roots.push(r)}
+  const rangeTxt=trig?`0° ≤ ${x} < 360°`:`−1,000,000 to 1,000,000`;
+  steps.push({t:'Why a numerical method?',n:`${x} is inside a ${trig?'trig function':'power, log or root'}, so simple rearranging cannot isolate it. The app checks f(${x}) at many points ${trig?`from 0° to 360°`:`from −1,000,000 to 1,000,000`} and looks for places where the sign of f(${x}) changes (a root lies between).`});
+  if(intervals.length)steps.push({t:'Sign changes found',lines:[`<div class="tblw"><table class="tbl"><tr><th>From</th><th>To</th><th>f(from)</th><th>f(to)</th></tr>${intervals.map(([a,b,fa,fb])=>`<tr><td>${fmtD(a,4)}</td><td>${fmtD(b,4)}</td><td>${fmtF(fa,4)}</td><td>${fmtF(fb,4)}</td></tr>`).join('')}</table></div>`]});
+  steps.push({t:'Narrow down each root (bisection)',n:'Each interval is halved again and again until the root is known to about 12 digits.'});
+  if(trig)steps.push({t:'Angles',n:'Angles are in degrees. Trig equations repeat forever, so solutions are listed for 0° ≤ x < 360°. Add multiples of 360° for the others.'});
+  if(!roots.length)return{answer:'No real solution found',sub:`Searched ${rangeTxt}`,steps};
+  const ans=[],check=[];
+  for(const r of roots){const s=cfSnap(r);let shown='≈ '+fmtF(r),val=r,exact=false;
+    if(s){let ok=false;try{const a=evalQ(lt,v,s),b=evalQ(rt,v,s);if(a&&b&&a.eq(b))ok=true}catch(e){}if(!ok){const fs=f(s.num());if(isFinite(fs)&&Math.abs(fs)<=1e-13*sc(s.num()))ok=true}if(ok){shown='= '+fq(s);val=s.num();exact=true}}
+    ans.push(`${x} ${shown}${trig?'°':''}`);
+    check.push(M(`${x} ${shown}${trig?'°':''}: &nbsp; Left ≈ ${fmtF(L(val))}, Right ≈ ${fmtF(Rf(val))} ✓`))}
+  return{answer:ans.join(' &nbsp;<span class="ap">or</span>&nbsp; '),sub:`${roots.length} real solution${roots.length>1?'s':''} in ${rangeTxt}`,steps,check:['Each answer was put back into the original equation:',...check]}}
+
+/* ================= INEQUALITY ================= */
+function solveIneq(src){
+  const s0=String(src).replace(/≤|=<|<=/g,'≤').replace(/≥|=>|>=/g,'≥');
+  const ops=[...s0.matchAll(/[<>≤≥]/g)];
+  if(!s0.trim())throw new MErr('Type an inequality first, e.g. 2x + 3 > 7');
+  if(ops.length!==1)throw new MErr('Use exactly one inequality sign: <, >, ≤ (<=) or ≥ (>=).');
+  const op=ops[0][0],i=ops[0].index;
+  const tl=tokenize(fixPow(s0.slice(0,i)),{calc:true}),tr=tokenize(fixPow(s0.slice(i+1)),{calc:true});
+  const vars=[...new Set([...tl,...tr].filter(t=>t.k==='var').map(t=>t.v))];
+  if(vars.length!==1)throw new MErr(vars.length?`Use only one variable — here there are ${vars.join(', ')}.`:'There is no variable (like x).');
+  const v=vars[0],x=`<i>${v}</i>`,lt=parse(tl),rt=parse(tr),opH={'<':'&lt;','>':'&gt;','≤':'≤','≥':'≥'}[op];
+  const steps=[{t:'Question (as understood)',m:`${R(lt)} ${opH} ${R(rt)}`}];
+  const dens=[];let Ls,Rs;
+  try{Ls=evalRat(lt,v,dens);Rs=evalRat(rt,v,dens)}catch(e){if(e instanceof NonAlg)throw new MErr('Only polynomial and fraction inequalities are supported (no log, trig or roots of x).');throw e}
+  const N=P.sub(P.mul(Ls.N,Rs.D),P.mul(Rs.N,Ls.D)),D=P.mul(Ls.D,Rs.D);
+  const want=s=>op==='<'?s<0:op==='>'?s>0:op==='≤'?s<=0:s>=0;
+  let ranges=null;const flip={'<':'>','>':'<','≤':'≥','≥':'≤'};
+  if(D.length===1&&!dens.length&&N.length===2){
+    let aL=Ls.N[1]||Z,bL=Ls.N[0]||Z,aR=Rs.N[1]||Z,bR=Rs.N[0]||Z;
+    if(R(lt)!==fpoly(Ls.N,v)||R(rt)!==fpoly(Rs.N,v))steps.push({t:'Expand and simplify',m:`${fpoly(Ls.N,v)} ${opH} ${fpoly(Rs.N,v)}`});
+    if(!aR.z){aL=aL.sub(aR);steps.push({t:aR.sgn()>0?`Subtract ${termH(aR,v,1)} from both sides`:`Add ${termH(aR.neg(),v,1)} to both sides`,m:`${fpoly([bL,aL],v)} ${opH} ${fq(bR)}`})}
+    if(!bL.z){bR=bR.sub(bL);steps.push({t:bL.sgn()>0?`Subtract ${fq(bL)} from both sides`:`Add ${fq(bL.neg())} to both sides`,m:`${termH(aL,v,1)} ${opH} ${fq(bR)}`})}
+    let o=op;const c=bR.div(aL);
+    if(!aL.eq(ONE)){if(aL.sgn()<0)o=flip[op];steps.push({t:`Divide both sides by ${fq(aL)}`,m:`${x} ${({'<':'&lt;','>':'&gt;','≤':'≤','≥':'≥'})[o]} ${fq(c)}`,n:aL.sgn()<0?'Dividing by a negative number flips the inequality sign.':'Dividing by a positive number keeps the sign.'})}
+  }else{
+    const side=r=>r.D.length===1?fpoly(r.N,v):fracH(fpoly(r.N,v),fpoly(r.D,v));
+    const exprH=D.length===1?fpoly(N.map(c=>c.div(D[0])),v):fracH(fpoly(N,v),fpoly(D,v));
+    steps.push({t:'Move everything to one side',m:`${exprH} ${opH} 0`,n:D.length>1?'Both sides combined into one fraction. Never multiply an inequality by an expression with x — its sign is unknown.':''});
+  }
+  const nz=realRoots(N),dz=[];for(const d of[...dens,D])if(d.length>1)for(const r of realRoots(d))if(!dz.some(e=>Math.abs(e.v-r.v)<=1e-9*Math.max(1,Math.abs(r.v))))dz.push(r);
+  const crit=[];for(const r of nz)crit.push({...r,zero:true});for(const r of dz){const c=crit.find(e=>Math.abs(e.v-r.v)<=1e-9*Math.max(1,Math.abs(r.v)));if(c)c.bad=true;else crit.push({...r,bad:true})}
+  crit.sort((a,b)=>a.v-b.v);
+  if(crit.length)steps.push({t:'Critical points',m:crit.map(c=>`${x} = ${c.html}`).join(', &nbsp;'),n:'Where the expression is 0'+(dz.length?' or undefined (denominator 0, never included)':'')+'. The sign can only change at these points.'});
+  const pick=(a,b)=>{if(a===-Infinity&&b===Infinity)return Z;if(a===-Infinity)return q(Math.floor(b)-1);if(b===Infinity)return q(Math.floor(a)+1);const m=(a+b)/2,tol=t=>1e-9*Math.max(1,Math.abs(t));
+    for(const d of[1,2,4,10,100,1000,10000,1e6,1e8]){const t=Math.round(m*d)/d;if(t>a+tol(a)&&t<b-tol(b))return new Q(B(Math.round(m*d)),B(d))}return qFromStr(m.toFixed(12))};
+  const sg=t=>{const a=P.ev(N,t).sgn(),b=P.ev(D,t).sgn();return a*b};
+  const segs=[];const bounds=[-Infinity,...crit.map(c=>c.v),Infinity];const rows=[];
+  for(let k=0;k<bounds.length-1;k++){const t=pick(bounds[k],bounds[k+1]);const s=sg(t);const ok=want(s);segs.push({type:'i',ok});
+    const lo=k===0?'−∞':crit[k-1].html,hi=k===crit.length?'∞':crit[k].html;rows.push(`<tr><td>(${lo}, ${hi})</td><td>${fq(t)}</td><td>${s>0?'+':s<0?'−':'0'}</td><td>${ok?'✓ yes':'✗ no'}</td></tr>`);
+    if(k<crit.length){const c=crit[k];segs.push({type:'p',ok:!c.bad&&op.length===1&&(op==='≤'||op==='≥')&&c.zero,c})}}
+  steps.push({t:'Sign chart (test one value in each interval)',lines:[`<div class="tblw"><table class="tbl"><tr><th>Interval</th><th>Test ${v}</th><th>Sign</th><th>${opH} 0?</th></tr>${rows.join('')}</table></div>`],n:crit.some(c=>c.zero)&&(op==='≤'||op==='≥')?'Points where the expression is 0 are included because the sign allows "= 0".':''});
+  ranges=[];let cur=null;
+  for(let k=0;k<segs.length;k++){const sgm=segs[k];
+    if(sgm.type==='i'){const ci=(k-0)/2;const lo=ci===0?null:crit[ci-1],hi=ci===crit.length?null:crit[ci];
+      if(sgm.ok){if(!cur)cur={lo,loC:false,hi,hiC:false};else{cur.hi=hi;cur.hiC=false}}else if(cur){ranges.push(cur);cur=null}}
+    else{if(sgm.ok){if(cur){cur.hi=sgm.c;cur.hiC=true}else cur={lo:sgm.c,loC:true,hi:sgm.c,hiC:true}}else if(cur){ranges.push(cur);cur=null}}}
+  if(cur)ranges.push(cur);
+  const fmtR=r=>{if(!r.lo&&!r.hi)return'all real numbers';if(r.lo&&r.hi&&r.lo===r.hi)return`${x} = ${r.lo.html}`;if(!r.lo)return`${x} ${r.hiC?'≤':'&lt;'} ${r.hi.html}`;if(!r.hi)return`${x} ${r.loC?'≥':'&gt;'} ${r.lo.html}`;return`${r.lo.html} ${r.loC?'≤':'&lt;'} ${x} ${r.hiC?'≤':'&lt;'} ${r.hi.html}`};
+  const ivl=r=>r.lo&&r.hi&&r.lo===r.hi?`{${r.lo.html}}`:`${r.loC?'[':'('}${r.lo?r.lo.html:'−∞'}, ${r.hi?r.hi.html:'∞'}${r.hiC?']':')'}`;
+  const machine=ranges.map(r=>({lo:r.lo?r.lo.v:-Infinity,loC:r.loC,hi:r.hi?r.hi.v:Infinity,hiC:r.hiC}));
+  /* independent check on many sample points against the original inequality */
+  const inAns=t=>machine.some(r=>(t>r.lo||(r.loC&&Math.abs(t-r.lo)<1e-12))&&(t<r.hi||(r.hiC&&Math.abs(t-r.hi)<1e-12)));
+  const samples=[];for(let k=-400;k<=400;k++)samples.push(k/8+0.0137);for(const c of crit)samples.push(c.v-1e-3,c.v+1e-3);
+  for(const t of samples){if(crit.some(c=>Math.abs(c.v-t)<1e-6))continue;const a=fv(lt,v,t),b=fv(rt,v,t);if(!isFinite(a)||!isFinite(b))continue;const d=a-b;if(Math.abs(d)<1e-9*Math.max(1,Math.abs(a),Math.abs(b)))continue;if(want(Math.sign(d))!==inAns(t))throw new MErr('The internal check failed.')}
+  if(!ranges.length)return{answer:'No solution',sub:'No value of '+v+' makes this true',steps,ranges:machine,check:['Every test value in the sign chart failed, so there is no solution ✓']};
+  return{answer:ranges.map(fmtR).join(' &nbsp;<span class="ap">or</span>&nbsp; '),sub:'Interval form: '+ranges.map(ivl).join(' ∪ '),steps,ranges:machine,check:[`${samples.length} sample values were tested in the original inequality — all agree with this answer ✓`]}}
+
+/* ================= ALGEBRA: expand & factorize ================= */
+const MP={
+  key:e=>Object.keys(e).filter(k=>e[k]).sort().map(k=>k+e[k]).join('.'),
+  c:x=>x.z?new Map():new Map([['',{e:{},c:x}]]),
+  v:n=>new Map([[n+'1',{e:{[n]:1},c:ONE}]]),
+  add(a,b){const r=new Map(a);for(const[k,t]of b){const o=r.get(k);const c=o?o.c.add(t.c):t.c;if(c.z)r.delete(k);else r.set(k,{e:t.e,c})}return r},
+  scale(a,s){const r=new Map();if(s.z)return r;for(const[k,t]of a)r.set(k,{e:t.e,c:t.c.mul(s)});return r},
+  mul(a,b){let r=new Map();for(const s of a.values())for(const t of b.values()){const e={...s.e};for(const k in t.e)e[k]=(e[k]||0)+t.e[k];const k=MP.key(e);const o=r.get(k);const c=o?o.c.add(s.c.mul(t.c)):s.c.mul(t.c);if(c.z)r.delete(k);else r.set(k,{e,c})}if(r.size>400)throw new MErr('The expanded answer would have too many terms.');return r},
+  isC:a=>a.size===0||(a.size===1&&a.has('')),cv:a=>a.size?a.get('').c:Z,
+  deg:t=>Object.values(t.e).reduce((s,x)=>s+x,0)};
+function evalMP(n){switch(n.t){
+  case'num':if(!isQ(n.v))throw new MErr('Use exact numbers here.');return MP.c(n.v);case'var':return MP.v(n.name);
+  case'pi':case'e':throw new MErr('π and e are not supported here.');
+  case'neg':return MP.scale(evalMP(n.a),ONE.neg());
+  case'fn':{const as=n.args.map(evalMP);if(!as.every(MP.isC))throw new MErr('Functions (√, sin, log …) of a variable cannot be expanded.');const r=fnApply(n.name,as.map(MP.cv));if(!isQ(r.v))throw new MErr('This function does not give an exact number.');return MP.c(r.v)}
+  case'bin':{const a=evalMP(n.l),b=evalMP(n.r);
+    if(n.op==='+')return MP.add(a,b);if(n.op==='-')return MP.add(a,MP.scale(b,ONE.neg()));if(n.op==='*')return MP.mul(a,b);
+    if(n.op==='/'){if(!MP.isC(b))throw new MErr('Dividing by an expression with a variable is not supported here.');const c=MP.cv(b);if(c.z)throw new MErr(DIV0);return MP.scale(a,c.inv())}
+    if(!MP.isC(b)||!MP.cv(b).int)throw new MErr('Powers must be whole numbers.');const e=MP.cv(b).n;if(MP.isC(a))return MP.c(powQ(MP.cv(a),e));if(e<0n)throw new MErr('Negative powers of a variable are not supported here.');if(e>20n)throw new MErr('Powers up to 20 are supported.');
+    let r=MP.c(ONE);for(let i=0n;i<e;i++)r=MP.mul(r,a);return r}}}
+function mpTerms(a){const vs=[...new Set([...a.values()].flatMap(t=>Object.keys(t.e)))].sort();return[...a.values()].sort((s,t)=>{const d=MP.deg(t)-MP.deg(s);if(d)return d;for(const k of vs){const x=(t.e[k]||0)-(s.e[k]||0);if(x)return x}return 0})}
+function monoH(e){return Object.keys(e).filter(k=>e[k]).sort().map(k=>`<i>${k}</i>`+(e[k]>1?`<sup>${e[k]}</sup>`:'')).join('')}
+function mpH(a){const ts=mpTerms(a);if(!ts.length)return'0';return ts.map((t,i)=>{const neg=t.c.n<0n,ab=t.c.abs(),m=monoH(t.e);const core=(m&&ab.eq(ONE)?'':fq(ab))+m;return i===0?(neg?'−':'')+core:(neg?' − ':' + ')+core}).join('')}
+const flatSum=(n,sgn=1,out=[])=>{if(n.t==='bin'&&(n.op==='+'||n.op==='-')){flatSum(n.l,sgn,out);flatSum(n.r,n.op==='-'?-sgn:sgn,out)}else out.push({n,sgn});return out};
+const isMono=n=>{try{return evalMP(n).size<=1}catch(e){return false}};
+function expandSteps(n,steps,depth=0){
+  if(depth>2||steps.length>12)return;
+  if(n.t==='bin'&&(n.op==='+'||n.op==='-')){const parts=flatSum(n).filter(p=>!isMono(p.n));if(parts.length&&flatSum(n).length>1){const lines=parts.map(p=>M(`${R(p.n)} = ${mpH(evalMP(p.n))}`));steps.push({t:'Expand each part',lines});parts.forEach(p=>{if(p.n.t==='bin'&&p.n.op==='*')expandSteps(p.n,steps,depth+1)})}return}
+  if(n.t==='bin'&&n.op==='^'&&n.r.t==='num'&&isQ(n.r.v)&&n.r.v.int&&n.r.v.n>=2n&&n.r.v.n<=4n&&!isMono(n.l)){const k=Number(n.r.v.n),A=R(n.l);const bt=flatSum(n.l);
+    if(k===2&&bt.length===2){const a=bt[0],b=bt[1];const aH=R(a.n),bH=R(b.n),sg=a.sgn*b.sgn;steps.push({t:`Use (a ${sg>0?'+':'−'} b)² = a² ${sg>0?'+':'−'} 2ab + b²`,m:`a = ${aH}, &nbsp; b = ${bH}`,lines:[M(`(${aH})<sup>2</sup> ${sg>0?'+':'−'} 2(${aH})(${bH}) + (${bH})<sup>2</sup>`)]});return}
+    steps.push({t:'Write the power as repeated multiplication',m:Array(k).fill(`(${A})`).join('')});return}
+  if(n.t==='bin'&&n.op==='*'){const A=flatSum(n.l),Bs=flatSum(n.r);if(A.length>1&&Bs.length>1&&A.length*Bs.length<=16){const lines=[];for(const a of A)for(const b of Bs){const pr=MP.scale(MP.mul(evalMP(a.n),evalMP(b.n)),q(a.sgn*b.sgn));lines.push(M(`${a.sgn<0?'(−'+R(a.n)+')':R(a.n)} × ${b.sgn<0?'(−'+R(b.n)+')':R(b.n)} = ${mpH(pr)}`))}steps.push({t:'Multiply every term in the first bracket by every term in the second',lines})}
+    else if(A.length>1||Bs.length>1)steps.push({t:'Multiply out the brackets (distribute)',m:`${R(n)}`})}}
+function solveAlgebra(op,src){
+  if(!String(src).trim())throw new MErr('Type an expression first, e.g. (x + 3)(x − 5)');
+  const toks=tokenize(fixPow(src));if(toks.some(t=>t.k==='='))throw new MErr('Type an expression without "=". To solve, use the Equation tool.');
+  const tree=parse(toks);const E=evalMP(tree);
+  const steps=[{t:'Expression (as understood)',m:R(tree)}];
+  if(op==='exp'){expandSteps(tree,steps);steps.push({t:'Combine like terms',m:mpH(E)});return{answer:mpH(E),sub:`${E.size} term${E.size===1?'':'s'}`,steps,check:checkSame(tree,E)}}
+  return factorMP(E,tree,steps)}
+function checkSame(tree,E){const vars=[...new Set(mpTerms(E).flatMap(t=>Object.keys(t.e)))];const vals=[q(3,2),q(-2),q(5,3),q(7),q(-1,4)];const env={};vars.forEach((v,i)=>env[v]=vals[i%vals.length].add(q(i)));
+  const evT=n=>{switch(n.t){case'num':return n.v;case'var':return env[n.name]||Z;case'neg':return evT(n.a).neg();case'fn':return fnApply(n.name,n.args.map(evT)).v;case'bin':{const a=evT(n.l),b=evT(n.r);return n.op==='+'?a.add(b):n.op==='-'?a.sub(b):n.op==='*'?a.mul(b):n.op==='/'?a.div(b):powQ(a,b.n)}}};
+  let s=Z;for(const t of E.values()){let m=t.c;for(const k in t.e)m=m.mul(env[k].pow(B(t.e[k])));s=s.add(m)}const o=evT(tree);if(!o.eq(s))throw new MErr('The internal check failed.');
+  return[M(`Test with ${vars.map(v=>`${v} = ${fq(env[v])}`).join(', ')||'any value'}: original = ${fq(o)}, answer = ${fq(s)} ✓`)]}
+function factorMP(E,tree,steps){
+  const ts=mpTerms(E);if(!ts.length)return{answer:'0',steps};
+  const vars=[...new Set(ts.flatMap(t=>Object.keys(t.e)))].sort();
+  const flat=mpH(E);if(flat!==R(tree))steps.push({t:'Expand first',m:flat});
+  const L=ts.reduce((m,t)=>lcmB(m,t.c.d),1n),G=ts.reduce((m,t)=>gcdB(m,t.c.mul(new Q(L)).n),0n);let k=new Q(G,L);if(ts[0].c.n<0n)k=k.neg();
+  const minE={};for(const v of vars)minE[v]=Math.min(...ts.map(t=>t.e[v]||0));
+  const common=MP.mul(MP.c(k),new Map([[MP.key(minE),{e:{...minE},c:ONE}]]));
+  let rest=new Map();for(const t of ts){const e={...t.e};for(const v of vars)e[v]=(e[v]||0)-minE[v];rest=MP.add(rest,new Map([[MP.key(e),{e,c:t.c.div(k)}]]))}
+  const cH=mpH(common),hasCommon=!(k.eq(ONE)&&!Object.values(minE).some(x=>x));
+  if(hasCommon&&!MP.isC(rest))steps.push({t:'Take out the common factor',m:`${cH==='−1'?'−':cH==='1'?'':cH}(${mpH(rest)})`,n:`${cH} divides every term.`});
+  const parts=[];
+  const restVars=[...new Set(mpTerms(rest).flatMap(t=>Object.keys(t.e)))];
+  if(restVars.length===1){const v=restVars[0];const deg=Math.max(...mpTerms(rest).map(t=>t.e[v]||0));const p=Array(deg+1).fill(Z);for(const t of rest.values())p[t.e[v]||0]=t.c;
+    const fr=factorUni(p,v,steps);parts.push(...fr)}
+  else if(rest.size===2){const[a,b]=mpTerms(rest);const sq=t=>{const r=sqrtQ(t.c.abs());if(!r||Object.values(t.e).some(x=>x%2))return null;const e={};for(const kk in t.e)e[kk]=t.e[kk]/2;return{c:r,e}};
+    const sa=sq(a),sb=sq(b);if(sa&&sb&&a.c.sgn()>0&&b.c.sgn()<0){const A=(sa.c.eq(ONE)?'':fq(sa.c))+monoH(sa.e),Bh=(sb.c.eq(ONE)?'':fq(sb.c))+monoH(sb.e);steps.push({t:'Difference of two squares: a² − b² = (a − b)(a + b)',m:`a = ${A}, &nbsp; b = ${Bh}`});parts.push(`(${A} − ${Bh})`,`(${A} + ${Bh})`)}
+    else{parts.push(`(${mpH(rest)})`);steps.push({t:'No further factors',n:'The remaining expression has no common factor and is not a difference of squares.'})}}
+  else if(!MP.isC(rest)){parts.push(`(${mpH(rest)})`);steps.push({t:'No further factors found',n:'This tool factorizes fully for one variable; with several variables it takes out common factors and differences of squares.'})}
+  let pre=cH==='1'?'':cH==='−1'?'−':cH;if(pre&&!pre.startsWith('−')&&/[+−]/.test(pre.slice(1)))pre=`(${pre})`;
+  const wrapped=t=>{if(!t.startsWith('(')||!t.endsWith(')'))return false;let d=0;for(let i=0;i<t.length;i++){if(t[i]==='(')d++;else if(t[i]===')'){d--;if(d===0&&i<t.length-1)return false}}return true};let prod=pre+parts.join('');if(!pre&&parts.length===1&&wrapped(parts[0]))prod=parts[0].slice(1,-1);const ans=prod||'1';
+  /* exact check: expand the product back */
+  const back=parseBack(ans);if(back&&!mpEq(back,E))throw new MErr('The internal check failed.');
+  steps.push({t:'Factorized form',m:ans});
+  return{answer:ans,steps,check:back?[M(`Multiplying the factors back gives ${mpH(E)} ✓`)]:[]}}
+function mpEq(a,b){const d=MP.add(a,MP.scale(b,ONE.neg()));return d.size===0}
+function parseBack(h){try{let s=h.replace(/<span class="frac"><span class="n">(.*?)<\/span><span class="d">(.*?)<\/span><\/span>/g,'(($1)/($2))').replace(/<sup>(\d+)<\/sup>/g,'^$1').replace(/<i>(\w)<\/i>/g,'$1').replace(/√<span class="rad">(\d+)<\/span>/g,'sqrt($1)').replace(/<[^>]+>/g,'').replace(/−/g,'-');if(/sqrt|≈/.test(s))return null;return evalMP(parse(tokenize(s)))}catch(e){return null}}
+function factorUni(p,v,steps){
+  const x=`<i>${v}</i>`;let a=intPoly(p);const lead=p[p.length-1];const sc=new Q(a[a.length-1]).div(lead);
+  const out=[];let k=0;while(a[k]===0n)k++;if(k){out.push(k>1?`${x}<sup>${k}</sup>`:x);a=a.slice(k)}
+  if(!sc.eq(ONE)&&!steps.some(s=>s.t==='Take out the common factor'))steps.push({t:'Make the coefficients whole numbers',m:fpolyB(a,v)});
+  const facs=[];
+  while(a.length-1>=2){const c0=a[0],cn=a[a.length-1],ps=divisors(c0),qs=divisors(cn);if(!ps||!qs)break;let found=null;
+    outer:for(const pp of ps)for(const qq of qs)for(const sgn of[1n,-1n]){const r=new Q(sgn*pp,qq);const deg=a.length-1;let s=0n;for(let i=0;i<=deg;i++)s+=a[i]*r.n**B(i)*r.d**B(deg-i);if(s===0n){found=r;break outer}}
+    if(!found)break;
+    const pr=found.n,qr=found.d,deg=a.length-1,rem=a.slice(),quo=Array(deg).fill(0n);
+    for(let i=deg;i>=1;i--){const co=rem[i]/qr;quo[i-1]=co;rem[i]-=co*qr;rem[i-1]+=co*pr}
+    steps.push({t:`${x} = ${fq(found)} makes it 0, so ${factorH(pr,qr,v)} is a factor`,m:`${factorH(pr,qr,v)}(${fpolyB(quo,v)})`,n:'Found with the Rational Root Theorem, then divided out.'});
+    const key=pr+'/'+qr,ex=facs.find(f=>f.key===key);if(ex)ex.m++;else facs.push({key,h:factorH(pr,qr,v),m:1});a=quo}
+  for(const f of facs)out.push(f.h.startsWith('(')?f.h+(f.m>1?`<sup>${f.m}</sup>`:''):(f.m>1?`${f.h}<sup>${f.m}</sup>`:f.h));
+  const deg=a.length-1;
+  if(deg===1)out.push(`(${fpolyB(a,v)})`);
+  else if(deg===2){const D=a[1]*a[1]-4n*a[2]*a[0];out.push(`(${fpolyB(a,v)})`);steps.push({t:'Check the quadratic factor',m:`D = b<sup>2</sup> − 4ac = ${bi(D)}`,n:D<0n?'D < 0, so it cannot be factorized with real numbers.':'D is not a perfect square, so it cannot be factorized with whole numbers or fractions.'})}
+  else if(deg===3){out.push(`(${fpolyB(a,v)})`);steps.push({t:'Remaining cubic',n:'It has no rational root, so it cannot be factorized further over the rational numbers.'})}
+  else if(deg===4){const pair=quadPair(a);if(pair){steps.push({t:'Split into two quadratics',m:`(${fpolyB(pair[0],v)})(${fpolyB(pair[1],v)})`,n:'Found by matching coefficients.'});out.push(`(${fpolyB(pair[0],v)})`,`(${fpolyB(pair[1],v)})`)}else{out.push(`(${fpolyB(a,v)})`);steps.push({t:'Remaining quartic',n:'It has no rational root and does not split into two quadratics with whole-number coefficients.'})}}
+  else if(deg>4){out.push(`(${fpolyB(a,v)})`);steps.push({t:'Remaining part',n:'It has no rational roots, so it has no linear factors over the rational numbers.'})}
+  if(!sc.eq(ONE)){const c=sc.inv();out.unshift(c.eq(ONE.neg())?'−':fq(c).includes('frac')?fq(c):fq(c))}
+  return out}
+function quadPair(a){const[e,d,c,b,A]=a;const ps=divisors(A),bs=divisors(e);if(!ps||!bs||ps.length*bs.length>4000)return null;
+  for(const p of ps){const r=A/p;for(const b0 of bs)for(const s of[1n,-1n]){const bb=s*b0,dd=e/bb;const det=r*bb-p*dd;if(det===0n){const K=c-p*dd-bb*r,disc=b*b-4n*r*K*p;if(disc<0n||!isSq(disc))continue;const sd=isqrt(disc);for(const sg of[1n,-1n]){const num=b+sg*sd;if(num%(2n*r))continue;const aa=num/(2n*r);if((b-r*aa)%p)continue;const cc=(b-r*aa)/p;if(p*dd+aa*cc+bb*r===c&&r*aa+p*cc===b&&aa*dd+bb*cc===d)return[[bb,aa,p],[dd,cc,r]]}continue}const an=b*bb-p*d,cn=r*d-b*dd;if(an%det||cn%det)continue;const aa=an/det,cc=cn/det;if(p*dd+aa*cc+bb*r===c&&r*aa+p*cc===b&&aa*dd+bb*cc===d)return[[bb,aa,p],[dd,cc,r]]}}return null}
+
+/* ================= CALCULUS: any function ================= */
+const N_=x=>({t:'num',v:isQ(x)?x:q(x)}),add_=(a,b)=>({t:'bin',op:'+',l:a,r:b}),sub_=(a,b)=>({t:'bin',op:'-',l:a,r:b}),mul_=(a,b)=>({t:'bin',op:'*',l:a,r:b,auto:true}),div_=(a,b)=>({t:'bin',op:'/',l:a,r:b,frac:true}),pow_=(a,b)=>({t:'bin',op:'^',l:a,r:b}),neg_=a=>({t:'neg',a}),fn_=(name,...args)=>({t:'fn',name,args,a:args[0]});
+const isN=(n,x)=>n.t==='num'&&isQ(n.v)&&(x===undefined||n.v.eq(q(x)));
+const same=(a,b)=>JSON.stringify(a,(k,v)=>typeof v==='bigint'?v.toString():v)===JSON.stringify(b,(k,v)=>typeof v==='bigint'?v.toString():v);
+function simp(n){switch(n.t){
+  case'neg':{const a=simp(n.a);if(isN(a))return N_(a.v.neg());if(a.t==='neg')return a.a;return neg_(a)}
+  case'fn':{const args=n.args.map(simp),r={...n,args,a:args[0]};if(args.every(x=>isN(x))){try{const o=fnApply(n.name,args.map(x=>x.v));if(isQ(o.v))return N_(o.v)}catch(e){}}return r}
+  case'bin':{let l=simp(n.l),r=simp(n.r);const op=n.op;
+    if(isN(l)&&isN(r)){try{if(op==='+')return N_(l.v.add(r.v));if(op==='-')return N_(l.v.sub(r.v));if(op==='*')return N_(l.v.mul(r.v));if(op==='/'&&!r.v.z)return N_(l.v.div(r.v));if(op==='^'&&r.v.int&&absB(r.v.n)<=20n&&!(l.v.z&&r.v.sgn()<0))return N_(powQ(l.v,r.v.n))}catch(e){}}
+    if(op==='+'){if(isN(l,0))return r;if(isN(r,0))return l;if(r.t==='bin'&&r.op==='*'&&isN(r.l)&&r.l.v.sgn()<0)return simp(sub_(l,mul_(N_(r.l.v.neg()),r.r)));if(isN(r)&&r.v.sgn()<0)return{t:'bin',op:'-',l,r:N_(r.v.neg())};if(r.t==='neg')return simp(sub_(l,r.a));if(l.t==='neg')return simp(sub_(r,l.a));return add_(l,r)}
+    if(op==='-'){if(isN(r,0))return l;if(isN(l,0))return simp(neg_(r));if(r.t==='bin'&&r.op==='*'&&isN(r.l)&&r.l.v.sgn()<0)return simp(add_(l,mul_(N_(r.l.v.neg()),r.r)));if(isN(r)&&r.v.sgn()<0)return add_(l,N_(r.v.neg()));if(r.t==='neg')return add_(l,r.a);if(same(l,r))return N_(0);return sub_(l,r)}
+    if(op==='*'){if(isN(l,0)||isN(r,0))return N_(0);if(isN(l,1))return r;if(isN(r,1))return l;if(isN(l,-1))return simp(neg_(r));if(isN(r,-1))return simp(neg_(l));
+      if(l.t==='neg')return simp(neg_(mul_(l.a,r)));if(r.t==='neg')return simp(neg_(mul_(l,r.a)));
+      if(isN(r)&&!isN(l))[l,r]=[r,l];
+      if(isN(l)&&r.t==='bin'&&r.op==='*'&&isN(r.l))return simp(mul_(N_(l.v.mul(r.l.v)),r.r));
+      if(isN(l)&&r.t==='bin'&&r.op==='/'&&isN(r.l))return simp(div_(N_(l.v.mul(r.l.v)),r.r));
+      if(l.t==='bin'&&l.op==='/')return simp(div_(mul_(l.l,r),l.r));
+      if(!isN(l)&&r.t==='bin'&&r.op==='*'&&isN(r.l))return simp(mul_(r.l,mul_(l,r.r)));
+      if(!isN(r)&&l.t==='bin'&&l.op==='*'&&isN(l.l)&&!isN(l.r))return simp(mul_(l.l,mul_(l.r,r)));
+      if(r.t==='bin'&&r.op==='/')return simp(div_(mul_(l,r.l),r.r));
+      if(same(l,r))return pow_(l,N_(2));
+      return mul_(l,r)}
+    if(op==='/'){if(isN(r,1))return l;if(isN(l,0))return N_(0);if(isN(r)&&!r.v.z&&!isN(l))return simp(mul_(N_(r.v.inv()),l));if(same(l,r))return N_(1);if(l.t==='neg')return simp(neg_(div_(l.a,r)));if(isN(r)&&isN(l))return N_(l.v.div(r.v));
+      if(isN(r)&&l.t==='bin'&&l.op==='*'&&isN(l.l))return simp(mul_(N_(l.l.v.div(r.v)),l.r));
+      return div_(l,r)}
+    if(op==='^'){if(isN(r,0))return N_(1);if(isN(r,1))return l;if(isN(l,1))return N_(1);return pow_(l,r)}}}
+  return n}
+function lin(n,v){try{const p=evalPoly(n,v);return p.length===2?p:null}catch(e){return null}}
+function deriv(n,v,log){
+  if(!hasVar(n,v))return N_(0);
+  const L=(t,m,lines)=>{if(log&&log.length<14)log.push({t,m,lines:(lines||[]).map(M)})};
+  switch(n.t){
+    case'var':return N_(1);
+    case'neg':return simp(neg_(deriv(n.a,v,log)));
+    case'bin':{const{l,r,op}=n;
+      if(op==='+'||op==='-')return simp({t:'bin',op,l:deriv(l,v,log),r:deriv(r,v,log)});
+      if(op==='*'){if(!hasVar(l,v))return simp(mul_(l,deriv(r,v,log)));if(!hasVar(r,v))return simp(mul_(r,deriv(l,v,log)));
+        const dl=deriv(l,v,log),dr=deriv(r,v,log),res=simp(add_(mul_(dl,r),mul_(l,dr)));
+        L('Product rule: (uv)′ = u′v + uv′',`d/dx [${R(n)}]`,[`u = ${R(l)}, &nbsp; u′ = ${R(dl)}`,`v = ${R(r)}, &nbsp; v′ = ${R(dr)}`,`= ${R(res)}`]);return res}
+      if(op==='/'){if(!hasVar(r,v))return simp(div_(deriv(l,v,log),r));
+        const dl=deriv(l,v,log),dr=deriv(r,v,log),res=simp(div_(sub_(mul_(dl,r),mul_(l,dr)),pow_(r,N_(2))));
+        L('Quotient rule: (u/v)′ = (u′v − uv′) / v²',`d/dx [${R(n)}]`,[`u = ${R(l)}, &nbsp; u′ = ${R(dl)}`,`v = ${R(r)}, &nbsp; v′ = ${R(dr)}`,`= ${R(res)}`]);return res}
+      if(op==='^'){
+        if(!hasVar(r,v)){const du=deriv(l,v,log),res=simp(mul_(mul_(r,pow_(l,simp(sub_(r,N_(1))))),du));
+          if(l.t!=='var')L('Power rule with chain rule: (uⁿ)′ = n·uⁿ⁻¹·u′',`d/dx [${R(n)}]`,[`u = ${R(l)}, &nbsp; u′ = ${R(du)}`,`= ${R(res)}`]);return res}
+        const du=deriv(r,v,log);
+        if(!hasVar(l,v)){const res=l.t==='e'?simp(mul_(n,du)):simp(mul_(mul_(n,fn_('ln',l)),du));
+          L(l.t==='e'?'Exponential rule: (eᵘ)′ = eᵘ·u′':'Exponential rule: (aᵘ)′ = aᵘ·ln(a)·u′',`d/dx [${R(n)}]`,[`u = ${R(r)}, &nbsp; u′ = ${R(du)}`,`= ${R(res)}`]);return res}
+        const dl=deriv(l,v,log),res=simp(mul_(n,add_(mul_(du,fn_('ln',l)),div_(mul_(r,dl),l))));
+        L('Variable base and power: (uᵛ)′ = uᵛ·(v′·ln u + v·u′/u)',`d/dx [${R(n)}]`,[`= ${R(res)}`]);return res}
+      break}
+    case'fn':{if(n.args.slice(1).some(a=>hasVar(a,v)))throw new MErr('This function cannot be differentiated here.');
+      const u=n.args[0],du=deriv(u,v,log);let g,rule;
+      switch(n.name){
+        case'sin':g=fn_('cos',u);rule='(sin u)′ = cos u';break;
+        case'cos':g=neg_(fn_('sin',u));rule='(cos u)′ = −sin u';break;
+        case'tan':g=div_(N_(1),pow_(fn_('cos',u),N_(2)));rule='(tan u)′ = 1 / cos²u = sec²u';break;
+        case'ln':g=div_(N_(1),u);rule='(ln u)′ = 1/u';break;
+        case'log':g=div_(N_(1),mul_(u,fn_('ln',n.args[1]||N_(10))));rule=`(log u)′ = 1 / (u·ln ${n.args[1]?R(n.args[1]):'10'})`;break;
+        case'exp':g=fn_('exp',u);rule='(eᵘ)′ = eᵘ';break;
+        case'sqrt':g=div_(N_(1),mul_(N_(2),fn_('sqrt',u)));rule='(√u)′ = 1 / (2√u)';break;
+        case'cbrt':g=div_(N_(1),mul_(N_(3),pow_(fn_('cbrt',u),N_(2))));rule='(∛u)′ = 1 / (3·∛u²)';break;
+        case'abs':g=div_(u,fn_('abs',u));rule='(|u|)′ = u / |u|';break;
+        case'asin':g=div_(N_(1),fn_('sqrt',sub_(N_(1),pow_(u,N_(2)))));rule='(sin⁻¹u)′ = 1/√(1 − u²)';break;
+        case'acos':g=neg_(div_(N_(1),fn_('sqrt',sub_(N_(1),pow_(u,N_(2))))));rule='(cos⁻¹u)′ = −1/√(1 − u²)';break;
+        case'atan':g=div_(N_(1),add_(N_(1),pow_(u,N_(2))));rule='(tan⁻¹u)′ = 1/(1 + u²)';break;
+        default:throw new MErr('This function cannot be differentiated here.')}
+      const res=simp(mul_(simp(g),du));
+      L(u.t==='var'?`Rule: ${rule}`:`Chain rule: ${rule} × u′`,`d/dx [${R(n)}]`,u.t==='var'?[`= ${R(res)}`]:[`u = ${R(u)}, &nbsp; u′ = ${R(du)}`,`= ${R(res)}`]);return res}}
+  throw new MErr('This expression cannot be differentiated here.')}
+function splitC(n,v){if(!hasVar(n,v))return[n,N_(1)];
+  if(n.t==='neg'){const[c,g]=splitC(n.a,v);return[simp(neg_(c)),g]}
+  if(n.t==='bin'&&n.op==='*'){if(!hasVar(n.l,v)){const[c,g]=splitC(n.r,v);return[simp(mul_(n.l,c)),g]}if(!hasVar(n.r,v)){const[c,g]=splitC(n.l,v);return[simp(mul_(n.r,c)),g]}}
+  if(n.t==='bin'&&n.op==='/'){if(!hasVar(n.r,v)){const[c,g]=splitC(n.l,v);return[simp(div_(c,n.r)),g]}if(!hasVar(n.l,v)&&!isN(n.l,1))return[n.l,div_(N_(1),n.r)]}
+  return[N_(1),n]}
+function polyTree(c,v){let t=null;for(let i=c.length-1;i>=0;i--){if(c[i].z)continue;const term=i===0?N_(c[i]):mul_(N_(c[i]),i===1?{t:'var',name:v}:pow_({t:'var',name:v},N_(i)));t=t?add_(t,term):term}return simp(t||N_(0))}
+function byParts(g,v){if(!(g.t==='bin'&&g.op==='*'))return null;
+  for(const[pt,o]of[[g.l,g.r],[g.r,g.l]]){let p;try{p=evalPoly(pt,v)}catch(e){continue}if(p.length<2)continue;
+    let kind=null,u=null;if(o.t==='fn'&&['exp','sin','cos','ln'].includes(o.name)){kind=o.name;u=o.args[0]}else if(o.t==='bin'&&o.op==='^'&&o.l.t==='e'){kind='exp';u=o.r}
+    if(!kind)continue;const li=lin(u,v);if(!li)continue;const a=li[1];
+    if(kind==='ln'){if(!(li[0].z&&a.eq(ONE)))continue;const Pi=pInteg(p),Pd=Pi.slice(1);const res=simp(sub_(mul_(polyTree(Pi,v),fn_('ln',u)),polyTree(pInteg(Pd),v)));return[res,'By parts: ∫ p·ln x dx = P·ln x − ∫ P/x dx  (P = ∫p dx)']}
+    const G=k=>{if(kind==='exp')return div_(fn_('exp',u),N_(a.pow(B(k))));const cyc=kind==='sin'?[[-1,'cos'],[-1,'sin'],[1,'cos'],[1,'sin']]:[[1,'sin'],[-1,'cos'],[-1,'sin'],[1,'cos']];const[sg,f]=cyc[(k-1)%4];return mul_(N_(q(sg).div(a.pow(B(k)))),fn_(f,u))};
+    let res=null,d=p,k=0;while(!P.isZ(d)){const term=mul_(polyTree(d,v),G(k+1));res=res?(k%2?sub_(res,term):add_(res,term)):term;d=pDeriv(d);k++;if(k>12)return null}
+    return[simp(res),'Integration by parts (tabular): ∫ p·g dx = p·G₁ − p′·G₂ + p″·G₃ − …']}
+  return null}
+function integ(g,v){ /* returns [antiderivative, ruleText] or null */
+  const X={t:'var',name:v};
+  try{const p=evalPoly(g,v);if(p.length>1)return[polyTree(pInteg(p),v),'Power rule: ∫ xⁿ dx = xⁿ⁺¹/(n+1) on each term']}catch(e){}
+  if(g.t==='bin'&&(g.op==='+'||g.op==='-')){const parts=[];for(const q of flatSum(g)){const[c,h]=splitC(q.n,v);const r=integ(h,v);if(!r)return null;parts.push(simp(mul_(q.sgn<0?neg_(c):c,r[0])))}return[simp(parts.slice(1).reduce((s,t)=>add_(s,t),parts[0])),'Integrate each term']}
+  if(!hasVar(g,v))return[simp(mul_(g,X)),'∫ k dx = kx'];
+  if(g.t==='var')return[div_(pow_(X,N_(2)),N_(2)),'∫ x dx = x²/2'];
+  const pw=(base,nn)=>{const li=lin(base,v);if(!li)return null;const a=li[1],nq=nn;if(nq.t!=='num'||!isQ(nq.v))return null;const e=nq.v;
+    if(e.eq(ONE.neg()))return[simp(div_(fn_('ln',fn_('abs',base)),N_(a))),base.t==='var'?'∫ 1/x dx = ln|x|':'∫ 1/(ax+b) dx = ln|ax+b| / a'];
+    const e1=e.add(ONE);return[simp(div_(pow_(base,N_(e1)),N_(a.mul(e1)))),base.t==='var'?'Power rule: ∫ xⁿ dx = xⁿ⁺¹/(n+1)':'∫ (ax+b)ⁿ dx = (ax+b)ⁿ⁺¹ / (a(n+1))']};
+  if(g.t==='bin'&&g.op==='^'&&!hasVar(g.r,v)&&hasVar(g.l,v)){const r=pw(g.l,simp(g.r));if(r)return r}
+  if(g.t==='bin'&&g.op==='/'&&!hasVar(g.l,v)&&isN(g.l,1)){const d=g.r;if(lin(d,v))return pw(d,N_(-1));if(d.t==='bin'&&d.op==='^'&&!hasVar(d.r,v)){const e=simp(d.r);if(isN(e))return pw(d.l,N_(e.v.neg()))}if(d.t==='fn'&&d.name==='sqrt'&&lin(d.args[0],v))return pw(d.args[0],N_(q(-1,2)))}
+  if(g.t==='fn'){const u=g.args[0],li=lin(u,v);
+    if(g.name==='sqrt'&&li)return pw(u,N_(q(1,2)));if(g.name==='cbrt'&&li)return pw(u,N_(q(1,3)));
+    if(li){const a=N_(li[1]);switch(g.name){
+      case'sin':return[simp(div_(neg_(fn_('cos',u)),a)),'∫ sin(ax+b) dx = −cos(ax+b)/a'];
+      case'cos':return[simp(div_(fn_('sin',u),a)),'∫ cos(ax+b) dx = sin(ax+b)/a'];
+      case'tan':return[simp(div_(neg_(fn_('ln',fn_('abs',fn_('cos',u)))),a)),'∫ tan(ax+b) dx = −ln|cos(ax+b)|/a'];
+      case'exp':return[simp(div_(fn_('exp',u),a)),'∫ e^(ax+b) dx = e^(ax+b)/a'];
+      case'ln':return[simp(div_(sub_(mul_(u,fn_('ln',u)),u),a)),'∫ ln(u) dx = (u·ln u − u)/a (by parts)']}}}
+  if(g.t==='bin'&&g.op==='^'&&!hasVar(g.l,v)){const li=lin(g.r,v);if(li){const a=N_(li[1]);if(g.l.t==='e')return[simp(div_(g,a)),'∫ e^(ax+b) dx = e^(ax+b)/a'];const base=fv(g.l,v,0);if(base>0&&base!==1)return[simp(div_(g,mul_(a,fn_('ln',g.l)))),'∫ kᵘ dx = kᵘ / (a·ln k)']}}
+  return byParts(g,v)}
+function numCheckDeriv(f,df,v){const pts=[0.37,1.13,-0.71,2.05,0.5,-1.6,3.3,0.9,6.1,10.7,25.3,-5.2,-12.4,60.5,0.123,-0.33];let n=0;
+  const cd=(t,h)=>(fv(f,v,t+h)-fv(f,v,t-h))/(2*h);
+  for(const t of pts){const y=fv(df,v,t),y0=fv(f,v,t);if(!isFinite(y)||!isFinite(y0)||Math.abs(y)>1e8||Math.abs(y0)>1e8)continue;const h=1e-4*Math.max(1,Math.abs(t));
+    const d1=cd(t,h),d2=cd(t,h/2);if(!isFinite(d1)||!isFinite(d2))continue;const nd=(4*d2-d1)/3;const sc=Math.max(1,Math.abs(nd),Math.abs(y));
+    if(Math.abs(d1-d2)>1e-3*sc)continue;
+    if(Math.abs(nd-y)>1e-6*sc)throw new MErr('The internal check failed.');if(++n>=4)break}return n}
+function simpson(f,a,b){const ok=t=>isFinite(f(t));const n0=4000;const h=(b-a)/n0;for(let i=0;i<=n0;i++)if(!ok(a+i*h))throw new MErr('The function is undefined somewhere between a and b, so this integral is improper and cannot be computed here.');
+  const S=n=>{const h=(b-a)/n;let s=f(a)+f(b);for(let i=1;i<n;i++)s+=f(a+i*h)*(i%2?4:2);return s*h/3};const s1=S(4000),s2=S(8000);if(Math.abs(s2-s1)>1e-6*Math.max(1,Math.abs(s2)))throw new MErr('The function shoots off to infinity (or jumps) somewhere between a and b, so this integral is improper and cannot be computed here.');return[s2,Math.abs(s2-s1)]}
+function ptVal(str,label){try{const qv=numQ(str,label);return{q:qv,f:qv.num(),h:fq(qv)}}catch(e){if(!String(str||'').trim())throw e;let t;try{t=parse(tokenize(str,{calc:true}))}catch(e2){throw e}const anyVar=n=>n.t==='var'||(n.t==='neg'&&anyVar(n.a))||(n.t==='fn'&&n.args.some(anyVar))||(n.t==='bin'&&(anyVar(n.l)||anyVar(n.r)));if(anyVar(t))throw e;const st={mx:1};const f=fEval(t,st);if(!isFinite(f))throw e;return{q:null,f,h:R(t)}}}
+function solveCalculus(src,op,as,bs){
+  let s=String(src).replace(/^\s*(f\s*\(\s*[a-z]\s*\)|y)\s*=\s*/i,'');
+  if(!s.trim())throw new MErr('Type a function, e.g. x^3 − 2x + 5');
+  const toks=tokenize(fixPow(s),{calc:true});if(toks.some(t=>t.k==='='))throw new MErr('Type only the function (no =), e.g. 3x^2 + 2x.');
+  const vars=[...new Set(toks.filter(t=>t.k==='var').map(t=>t.v))];if(vars.length>1)throw new MErr(`Use only one variable (like x) — here there are ${vars.join(', ')}.`);
+  const v=vars[0]||'x';const tree=parse(toks);
+  let F=null;try{F=evalPoly(tree,v)}catch(e){if(!(e instanceof MErr))throw e}
+  const ratPts=()=>{try{if(['def'].includes(op)){numQ(as,'a');numQ(bs,'b')}if(['tan','val'].includes(op))numQ(as,'a');if(['d1','d2'].includes(op)&&String(as||'').trim())numQ(as,'a');return true}catch(e){return false}};
+  if(F&&ratPts())return calcPoly(tree,F,v,op,as,bs);
+  const keep=ANG;ANG='rad';try{return calcGeneral(tree,v,op,as,bs)}finally{ANG=keep}}
+function calcGeneral(tree,v,op,as,bs){
+  const xh=`<i>${v}</i>`;const steps=[{t:'Function (as understood)',m:`f(${xh}) = ${R(tree)}`,n:hasFn(tree,['sin','cos','tan','asin','acos','atan'])?'Trig functions use radians, as is standard in calculus.':''}];
+  const val=(t,a,soft)=>{const e=(()=>{try{return a.q?evalQ(t,v,a.q):null}catch(e){return null}})();if(e)return{h:fq(e),f:e.num(),q:e};const f=fv(t,v,a.f);if(!isFinite(f)){if(soft)return{h:'is undefined',f:NaN,und:true};throw new MErr(`The function is undefined at ${v} = ${a.h.replace(/<[^>]+>/g,'')}.`)}return{h:'≈ '+fmtF(f),f}};
+  const dSteps=(t)=>{const log=[];const terms=flatSum(t);let res;
+    if(terms.length>1){res=deriv(t,v,log);steps.push({t:'Differentiate term by term',lines:terms.map(p=>M(`d/d${xh} [${p.sgn<0?'−':''}${R(p.n)}] = ${R(simp(p.sgn<0?neg_(deriv(p.n,v,null)):deriv(p.n,v,null)))}`))})}else res=deriv(t,v,log);
+    steps.push(...log);return res};
+  if(op==='d1'||op==='d2'||op==='tan'){
+    const d1=dSteps(tree);steps.push({t:'First derivative',m:`f′(${xh}) = ${R(d1)}`});
+    let nck=numCheckDeriv(tree,d1,v);let res=d1,nm='f′';
+    if(op==='d2'){res=dSteps(d1);nm='f″';steps.push({t:'Second derivative',m:`f″(${xh}) = ${R(res)}`});nck=Math.min(nck,numCheckDeriv(d1,res,v))}
+    if(op==='tan'){const a=ptVal(as,'Point a'),m=val(d1,a),y=val(tree,a);steps.push({t:`Slope and point at ${xh} = ${a.h}`,lines:[M(`m = f′(${a.h}) ${m.h.startsWith('≈')?m.h:'= '+m.h}`),M(`y = f(${a.h}) ${y.h.startsWith('≈')?y.h:'= '+y.h}`)]});
+      if(m.q&&y.q&&a.q){const line=[y.q.sub(m.q.mul(a.q)),m.q];steps.push({t:'Tangent line: y − y₁ = m(x − x₁)',m:`y = ${fpoly(line,v)}`});return{answer:`y = ${fpoly(line,v)}`,sub:`Slope m = ${fq(m.q)} · Point (${a.h}, ${fq(y.q)})`,steps}}
+      const c=y.f-m.f*a.f;const lh=`y ≈ ${fmtD(m.f,6)}${xh} ${c<0?'−':'+'} ${fmtD(Math.abs(c),6)}`;steps.push({t:'Tangent line: y − y₁ = m(x − x₁)',m:lh});return{answer:lh,sub:`Slope m ≈ ${fmtF(m.f)} · Point (${a.h}, ${fmtF(y.f)})`,steps}}
+    const a=String(as||'').trim()?ptVal(as,'Point a'):null;let extra='';
+    if(a){const r=val(res,a,true);const vh=r.und?'is undefined':r.h.startsWith('≈')?r.h:'= '+r.h;steps.push({t:`Value at ${xh} = ${a.h}`,m:`${nm}(${a.h}) ${vh}`,n:r.und?'The function or its derivative is not defined at this point (for example, a denominator becomes 0).':''});extra=`<div style="font-size:.8em">${nm}(${a.h}) ${vh}</div>`}
+    return{answer:`${nm}(${xh}) = ${R(res)}${extra}`,steps,check:nck?['Compared with a numerical slope (tiny step on each side) at several points — they match ✓']:[]}}
+  if(op==='val'){const a=ptVal(as,'Value a');const r=val(tree,a);steps.push({t:`Put ${xh} = ${a.h}`,m:`f(${a.h}) ${r.h.startsWith('≈')?r.h:'= '+r.h}`});return{answer:`f(${a.h}) ${r.h.startsWith('≈')?r.h:'= '+r.h}`,steps}}
+  /* integrals */
+  const terms=flatSum(tree);const pieces=[];let ok=true;
+  for(const p of terms){const[c,g]=splitC(p.n,v);const r=integ(g,v);if(!r){ok=false;break}pieces.push({p,c,g,F:simp(mul_(p.sgn<0?neg_(c):c,r[0])),rule:r[1]})}
+  let Fx=null;
+  if(ok){steps.push({t:'Integrate term by term',lines:pieces.map(o=>M(`∫ ${o.p.sgn<0?'−':''}${R(o.p.n)} d${xh} = ${R(o.F)} &nbsp;<span class="ap">(${o.rule})</span>`))});
+    Fx=simp(pieces.slice(1).reduce((s,o)=>add_(s,o.F),pieces[0].F));
+    if(!numCheckDeriv(Fx,tree,v))Fx=Fx;}
+  if(op==='int'){if(!Fx)throw new MErr('This integral needs a method this app does not support yet (like substitution or integration by parts on a product). For a number, choose "Definite integral".');
+    steps.push({t:'Answer',m:`∫ f(${xh}) d${xh} = ${R(Fx)} + C`,n:'C = constant of integration.'});return{answer:`∫ f(${xh}) d${xh} = ${R(Fx)} + C`,steps,check:['Differentiating the answer gives back f(x) (checked at several points) ✓']}}
+  const a=ptVal(as,'Lower limit (a)'),b=ptVal(bs,'Upper limit (b)');
+  const[sv,err]=simpson(t=>fv(tree,v,t),a.f,b.f);
+  if(Fx){const Fa=fv(Fx,v,a.f),Fb=fv(Fx,v,b.f);if(isFinite(Fa)&&isFinite(Fb)){steps.push({t:'Antiderivative F(x)',m:`F(${xh}) = ${R(Fx)}`});steps.push({t:'Definite integral = F(b) − F(a)',m:`${fmtF(Fb)} − ${Fa<0?`(${fmtF(Fa)})`:fmtF(Fa)} ≈ ${fmtF(Fb-Fa)}`});
+      if(Math.abs((Fb-Fa)-sv)>1e-6*Math.max(1,Math.abs(sv)))throw new MErr('The internal check failed.');
+      return{answer:`∫<sub>${a.h}</sub><sup>${b.h}</sup> f(${xh}) d${xh} ≈ ${fmtF(Fb-Fa)}`,steps,check:[`A numerical method (Simpson's rule) also gives ≈ ${fmtF(sv)} ✓`]}}}
+  steps.push({t:'Numerical integration (Simpson\'s rule)',n:`No simple antiderivative is used here, so the area is added up in 8,000 thin strips. Estimated error: about ${fmtF(err,2)}.`});
+  return{answer:`∫<sub>${a.h}</sub><sup>${b.h}</sup> f(${xh}) d${xh} ≈ ${fmtF(sv)}`,steps,check:['Two different strip counts agree to the digits shown ✓']}}
+
+/*ENGINE END*/
+
+/* ================= UI ================= */
+const $=s=>document.querySelector(s);
+const GROUPS=[
+  {name:'Arithmetic & Algebra',tools:[
+    {id:'calc',name:'Calculator',ur:'Fractions, sin, log, √',ic:'±'},
+    {id:'eq',name:'Equation',ur:'Any equation in x',ic:'x='},
+    {id:'ineq',name:'Inequality',ur:'<, >, ≤, ≥ with sign chart',ic:'&lt;'},
+    {id:'alg',name:'Algebra',ur:'Expand and factorize',ic:'( )'},
+    {id:'sys',name:'Simultaneous',ur:'Solve x, y, z together',ic:'xy'},
+    {id:'calcu',name:'Calculus',ur:'Derivatives, integrals',ic:'∫'},
+    {id:'mat',name:'Matrix',ur:'Add, multiply, inverse',ic:'[ ]'}]},
+  {name:'Numbers',tools:[
+    {id:'num',name:'Number check',ur:'Prime, factors, roots',ic:'#'},
+    {id:'hcf',name:'HCF & LCM',ur:'Prime factor ladder',ic:'∣'},
+    {id:'ratio',name:'Ratio',ur:'Ratios, proportions',ic:'a:b'},
+    {id:'seq',name:'Sequence',ur:'AP and GP',ic:'…'}]},
+  {name:'Everyday math',tools:[
+    {id:'pct',name:'Percentage',ur:'Profit, loss, discount',ic:'%'},
+    {id:'int',name:'Interest',ur:'Simple & compound',ic:'Rs'},
+    {id:'conv',name:'Unit convert',ur:'km, kg, marla, °C',ic:'⇄'}]},
+  {name:'Geometry & Statistics',tools:[
+    {id:'geo',name:'Geometry',ur:'Area, volume',ic:'△'},
+    {id:'stat',name:'Statistics',ur:'Mean, median, mode',ic:'Σ'}]}];
+const TOOLS=GROUPS.flatMap(g=>g.tools);
+const kbd=(target,keys)=>`<div class="kbd" data-for="${target}">${keys.map(k=>`<button type="button" data-ins="${k[1]}" aria-label="${k[2]||k[0]}">${k[0]}</button>`).join('')}</div>`;
+const exs=(target,list)=>`<div class="ex"><span>Or tap an example:</span>${list.map(e=>`<button type="button" data-fill="${target}" data-val="${e.replace(/"/g,'&quot;')}">${e}</button>`).join('')}</div>`;
+const head=(ic,title,hint)=>`<div class="card-h"><span class="ic">${ic}</span><div><h2>${title}</h2><p class="hint">${hint}</p></div></div>`;
+const lab=(n,forId,txt,l)=>forId?`<label for="${forId}"><span class="dot${l?' l':''}">${n}</span>${txt}</label>`:`<div class="lab"><span class="dot${l?' l':''}">${n}</span>${txt}</div>`;
+const sl=(forId,txt)=>`<label class="sublab" for="${forId}">${txt}</label>`;
+const go=(id,n)=>`<button class="go" data-run="${id}"><span class="dot">${n}</span>See the solution</button>`;
+const how=items=>`<details class="how"><summary>How to type it (help)</summary><div class="how-g">${items.map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join('')}</div></details>`;
+const tin=(id,val,ph,cls='tin math-in',im='text')=>`<input id="${id}" class="${cls}" inputmode="${im}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${ph}" value="${val}">`;
+const CK=[['(','('],[')',')'],['x²','^2','square'],['^','^','power'],['√','√('],['∛','∛('],['π','π'],['%','%'],['÷','÷'],['×','×'],['−','−']];
+const FK=[['sin','sin('],['cos','cos('],['tan','tan('],['sin⁻¹','asin('],['cos⁻¹','acos('],['tan⁻¹','atan('],['log','log('],['ln','ln('],['e','e'],['n!','!'],['nCr','ncr('],['nPr','npr('],['|x|','abs('],[',',',']];
+const EK=[['x','x'],['y','y'],['=','='],['x²','^2','square'],['x³','^3','cube'],['(','('],[')',')'],['÷','/'],['√','√(']];
+const opt=(list,sel)=>list.map(([v,t])=>`<option value="${v}"${v===sel?' selected':''}>${t}</option>`).join('');
+const PANELS={
+calc:`<div class="card">${head('±','Calculator','Fractions, brackets, powers, √, sin/cos/tan, log, factorial, nCr — with every step.')}
+<div class="field">${lab(1,'calc-in','Type your question here')}${tin('calc-in','3/4 + 5/6 × 2 − (1 + 1/2)^2','e.g. 3/4 + 5/6')}<p class="help">Fraction: <b>3/4</b> &nbsp;·&nbsp; Power: <b>2^3</b> &nbsp;·&nbsp; sin: <b>sin(30)</b></p></div>
+<div class="field">${lab(2,'','Buttons (if you need them)',1)}${kbd('calc-in',CK)}<div style="height:7px"></div>${kbd('calc-in',FK)}</div>
+<div class="field">${sl('calc-ang','Angle unit (for sin, cos, tan)')}<select id="calc-ang">${opt([['deg','Degrees (°)'],['rad','Radian']],'deg')}</select></div>
+${exs('calc-in',['2/3 + 3/4','(12 + 8) ÷ 4 × 3','√144 + √50','sin(30) + cos(60)','tan(45)','log(1000)','5!','ncr(10, 3)','15% × 640'])}
+${how([['3/4','Fraction'],['2^3','Power'],['× or *','Multiply'],['÷ or /','Divide'],['√(49)','Square root'],['∛(27)','Cube root'],['sin(30)','Trigonometry (degrees)'],['sin⁻¹(0.5)','Inverse sin'],['log(100)','Log base 10'],['log(8, 2)','Log base 2'],['ln(5)','Natural log'],['5!','Factorial'],['ncr(5, 2)','Combination'],['npr(5, 2)','Permutation'],['|−7|','Absolute value'],['15%','Percent']])}
+${go('calc',3)}</div><div class="out" id="calc-out" aria-live="polite"></div>`,
+eq:`<div class="card">${head('x=','Equation','Linear, quadratic, cubic, fractions with x, powers like 2ˣ, log, √ and trig equations.')}
+<div class="field">${lab(1,'eq-in','Type the equation here (with =)')}${tin('eq-in','2(x + 3) = x − 4','e.g. 2x + 3 = 11')}<p class="help"><b>3x</b> works as is &nbsp;·&nbsp; for x² type <b>x^2</b> or use the button</p></div>
+<div class="field">${lab(2,'','Buttons for x, = and powers',1)}${kbd('eq-in',EK)}<div style="height:7px"></div>${kbd('eq-in',[['e','e'],['ln','ln('],['log','log('],['sin','sin('],['cos','cos('],['tan','tan('],['|x|','abs(']])}</div>
+${exs('eq-in',['3x + 5 = 2x − 7','x^2 − 5x + 6 = 0','x^2 + 4x + 13 = 0','x^3 − 6x^2 + 11x − 6 = 0','6/x + 1 = 4','1/x + 1/(x + 1) = 5/6','2^x = 32','log(x) + log(x − 3) = 1','√(x + 5) = x − 1','sin(x) = 0.5'])}
+${how([['3x + 5 = 20','Linear equation'],['x^2 − 9 = 0','Quadratic (x²)'],['x^3','x cubed'],['2(x + 1)','With brackets'],['x/4','x divided by 4'],['6/(x − 1)','Fraction with x below'],['2^x','x in the power'],['log(x)','Log base 10'],['sin(x)','Trig (degrees, 0°–360°)'],['Only one =','Do not type two = signs']])}
+${go('eq',3)}</div><div class="out" id="eq-out" aria-live="polite"></div>`,
+sys:`<div class="card">${head('xy','Simultaneous equations','2 equations (x, y) or 3 equations (x, y, z), solved with Cramer\'s rule.')}
+<div class="field">${lab(1,'sys-1','First equation')}${tin('sys-1','2x + 3y = 12','e.g. 2x + 3y = 12')}</div>
+<div class="field">${lab(2,'sys-2','Second equation')}${tin('sys-2','x − y = 1','e.g. x − y = 1')}</div>
+<div class="field">${lab(3,'sys-3','Third equation (only if there is a z)',1)}${tin('sys-3','','Leave empty if there are only x and y')}<p class="help">Same number of equations as variables: 2 for <b>x, y</b> · 3 for <b>x, y, z</b></p></div>
+${kbd('sys-1',[['x','x'],['y','y'],['z','z'],['=','='],['(','('],[')',')'],['/','/']])}
+<div class="ex"><span>Or tap an example:</span><button type="button" data-sys='["2x + 3y = 12","x − y = 1",""]'>2 equations</button><button type="button" data-sys='["x + y + z = 6","2x − y + z = 3","x + 2y − z = 2"]'>3 equations</button><button type="button" data-sys='["x/2 + y/3 = 4","3x − 2y = 2",""]'>With fractions</button></div>
+${go('sys',4)}</div><div class="out" id="sys-out" aria-live="polite"></div>`,
+ineq:`<div class="card">${head('&lt;','Inequality','Linear, quadratic, polynomial and fraction inequalities — with a sign chart.')}
+<div class="field">${lab(1,'iq-in','Type the inequality')}${tin('iq-in','x^2 − 5x + 6 &lt; 0','e.g. 2x + 3 &gt; 7')}<p class="help">Signs: <b>&lt;</b> <b>&gt;</b> <b>&lt;=</b> (≤) <b>&gt;=</b> (≥)</p></div>
+<div class="field">${lab(2,'','Buttons',1)}${kbd('iq-in',[['x','x'],['&lt;','<'],['&gt;','>'],['≤','≤'],['≥','≥'],['x²','^2'],['(','('],[')',')'],['/','/']])}</div>
+${exs('iq-in',['2x + 3 &gt; 7','−3x + 1 ≥ 10','x^2 − 4 ≥ 0','(x + 1)/(x − 2) &gt; 0','x^3 − x &gt; 0'])}
+${go('ineq',3)}</div><div class="out" id="ineq-out" aria-live="polite"></div>`,
+alg:`<div class="card">${head('( )','Algebra','Expand brackets or factorize — any number of letters.')}
+<div class="field">${lab(1,'al-op','What do you want to do?')}<select id="al-op">${opt([['exp','Expand (remove brackets)'],['fac','Factorize']],'fac')}</select></div>
+<div class="field">${lab(2,'al-in','Type the expression')}${tin('al-in','6x^2 + 11x − 10','e.g. (x + 3)(x − 5)')}</div>
+${kbd('al-in',[['x','x'],['y','y'],['a','a'],['b','b'],['x²','^2'],['^','^'],['(','('],[')',')']])}
+${exs('al-in',['(x + 3)(x − 5)','(a + b)^3','(2x − 1)(x^2 + x + 4)','x^2 − 5x + 6','x^3 − 8','4a^2 − 9b^2','6x^2y + 9xy^2','x^4 + 4'])}
+${go('alg',3)}</div><div class="out" id="alg-out" aria-live="polite"></div>`,
+calcu:`<div class="card">${head('∫','Calculus','Derivatives and integrals of polynomials, sin, cos, tan, eˣ, ln, √ — with product, quotient and chain rules.')}
+<div class="field">${lab(1,'cu-op','What do you want to find?')}<select id="cu-op">${opt([['d1','Derivative f′(x)'],['d2','Second derivative f″(x)'],['int','Integral ∫ f(x) dx'],['def','Definite integral (from a to b)'],['tan','Tangent line (at point a)'],['val','Value f(a)']],'d1')}</select></div>
+<div class="field">${lab(2,'cu-f','Type the function f(x)')}${tin('cu-f','3x^4 − 2x^3 + 5x − 7','e.g. x^3 − 2x + 5')}<p class="help">e.g. <b>x^3</b>, <b>x^2 sin(x)</b>, <b>e^(2x)</b>, <b>ln(x)</b> · limits can use <b>pi</b></p></div>
+${kbd('cu-f',[['x','x'],['x²','^2'],['^','^'],['(','('],[')',')'],['/','/'],['sin','sin('],['cos','cos('],['tan','tan('],['e','e'],['ln','ln('],['√','√('],['π','π']])}
+<div class="grid2" id="cu-ab"><div class="field">${sl('cu-a','Point a (optional)')}${tin('cu-a','2','e.g. 2','tin','decimal')}</div><div class="field" id="cu-bf">${sl('cu-b','Upper limit b')}${tin('cu-b','3','e.g. 3','tin','decimal')}</div></div>
+${exs('cu-f',['5x^3 − 4x + 1','x^2 sin(x)','e^(2x) cos(x)','ln(x^2 + 1)','(x^2 + 1)/(x − 1)','x e^x','√(3x + 1)'])}
+${go('calcu',3)}</div><div class="out" id="calcu-out" aria-live="polite"></div>`,
+mat:`<div class="card">${head('[ ]','Matrix','Add, subtract, multiply, determinant, inverse and transpose — in exact fractions.')}
+<div class="field">${lab(1,'mat-op','What do you want to do?')}<select id="mat-op">${opt([['mul','A × B (multiply)'],['add','A + B (add)'],['sub','A − B (subtract)'],['det','det(A) — determinant'],['inv','A⁻¹ — inverse'],['tr','Aᵀ — transpose']],'inv')}</select></div>
+<div class="grid2"><div class="field">${lab(2,'mat-a','Matrix A')}<textarea id="mat-a" class="tin math-in" rows="3" spellcheck="false">2 1 1
+1 3 2
+1 0 0</textarea></div><div class="field" id="mat-bf">${lab(3,'mat-b','Matrix B',1)}<textarea id="mat-b" class="tin math-in" rows="3" spellcheck="false">1 0 2
+0 1 1
+3 1 0</textarea></div></div>
+<p class="help">One row per line, spaces between numbers: <b>1 2</b> ↵ <b>3 4</b></p>
+${go('mat',4)}</div><div class="out" id="mat-out" aria-live="polite"></div>`,
+num:`<div class="card">${head('#','Number check','Prime or not, all factors, prime factors, √ and ∛.')}
+<div class="field">${lab(1,'num-in','Type a number')}${tin('num-in','360','e.g. 360','tin math-in','numeric')}</div>
+${exs('num-in',['97','144','1001','2310','8128'])}
+${go('num',2)}</div><div class="out" id="num-out" aria-live="polite"></div>`,
+hcf:`<div class="card">${head('∣','HCF & LCM','Full solution with the prime factor ladder.')}
+<div class="field">${lab(1,'hcf-in','Type the numbers here')}${tin('hcf-in','36, 48, 60','e.g. 12, 18','tin math-in','numeric')}<p class="help">Put a <b>,</b> (comma) between numbers — 2 to 10 numbers</p></div>
+${exs('hcf-in',['12, 18','84, 126','15, 25, 40','17, 23'])}
+${go('hcf',2)}</div><div class="out" id="hcf-out" aria-live="polite"></div>`,
+ratio:`<div class="card">${head('a:b','Ratio and proportion','Simplify ratios, find x in a proportion, and share an amount in a ratio.')}
+<div class="field">${lab(1,'ra-mode','Question type')}<select id="ra-mode">${opt([['simp','Simplify a ratio'],['prop','Proportion: a : b = c : x'],['div','Share an amount in a ratio']],'div')}</select></div>
+<div class="field">${lab(2,'ra-1','Type the ratio (with :)')}${tin('ra-1','2 : 3 : 5','e.g. 12 : 18')}</div>
+<div class="field" id="ra-2f">${lab(3,'ra-2','',1)}${tin('ra-2','5000','','tin','decimal')}</div>
+${go('ratio',4)}</div><div class="out" id="ratio-out" aria-live="polite"></div>`,
+seq:`<div class="card">${head('…','Sequence (AP / GP)','The n-th term and the sum of the first n terms.')}
+<div class="field">${lab(1,'seq-type','Sequence type')}<select id="seq-type">${opt([['ap','AP — add the same number each time'],['gp','GP — multiply by the same number each time']],'ap')}</select></div>
+<div class="field">${lab(2,'','Enter the values',1)}<div class="grid2"><div class="field">${sl('seq-a','First term (a)')}${tin('seq-a','3','e.g. 3','tin','decimal')}</div><div class="field">${sl('seq-d','Common difference (d)')}${tin('seq-d','4','e.g. 4','tin','decimal')}</div><div class="field">${sl('seq-n','Number of terms (n)')}${tin('seq-n','20','e.g. 20','tin','numeric')}</div></div></div>
+${go('seq',3)}</div><div class="out" id="seq-out" aria-live="polite"></div>`,
+pct:`<div class="card">${head('%','Percentage','Percent, profit / loss, discount, increase / decrease.')}
+<div class="field">${lab(1,'pct-mode','Choose the question type')}<select id="pct-mode">${Object.entries(PCT_MODES).map(([k,m])=>`<option value="${k}">${m.name}</option>`).join('')}</select></div>
+<div class="field">${lab(2,'','Type a number in both boxes',1)}<div class="grid2"><div class="field"><label class="sublab" for="pct-a" id="pct-al">A</label>${tin('pct-a','','','tin','decimal')}</div><div class="field"><label class="sublab" for="pct-b" id="pct-bl">B</label>${tin('pct-b','','','tin','decimal')}</div></div></div>
+${go('pct',3)}</div><div class="out" id="pct-out" aria-live="polite"></div>`,
+int:`<div class="card">${head('Rs','Interest','Simple and compound interest, with a period-by-period table.')}
+<div class="field">${lab(1,'int-type','Interest type')}<div class="grid2"><select id="int-type">${opt([['si','Simple interest (SI)'],['ci','Compound interest (CI)']],'ci')}</select><div class="field" id="int-nf"><select id="int-n" aria-label="Compounding frequency">${opt([['1','Compounded yearly'],['2','Every 6 months'],['4','Every 3 months'],['12','Monthly']],'1')}</select></div></div></div>
+<div class="field">${lab(2,'','Enter amount, rate and time',1)}<div class="grid2"><div class="field">${sl('int-p','Principal (Rs)')}${tin('int-p','50000','','tin','decimal')}</div><div class="field">${sl('int-r','Rate (% per year)')}${tin('int-r','10','','tin','decimal')}</div><div class="field">${sl('int-t','Time (years)')}${tin('int-t','3','','tin','decimal')}</div></div></div>
+${go('int',3)}</div><div class="out" id="int-out" aria-live="polite"></div>`,
+conv:`<div class="card">${head('⇄','Unit convert','Length, weight, area (marla, kanal), volume, time, speed, temperature.')}
+<div class="field">${lab(1,'cv-cat','What are you converting?')}<select id="cv-cat">${Object.entries(UNITS).map(([k,u])=>`<option value="${k}">${u.name}</option>`).join('')}</select></div>
+<div class="field">${lab(2,'','From which unit to which?',1)}<div class="grid2"><div class="field">${sl('cv-from','From')}<select id="cv-from"></select></div><div class="field">${sl('cv-to','To')}<select id="cv-to"></select></div></div></div>
+<div class="field">${lab(3,'cv-v','Enter the value')}${tin('cv-v','5','e.g. 5','tin','decimal')}</div>
+${go('conv',4)}</div><div class="out" id="conv-out" aria-live="polite"></div>`,
+geo:`<div class="card">${head('△','Geometry','Area, perimeter, volume and surface area — with formulas.')}
+<div class="field">${lab(1,'geo-shape','Choose a shape')}<select id="geo-shape">${Object.entries(SHAPES).map(([k,s])=>`<option value="${k}"${k==='circle'?' selected':''}>${s.name}</option>`).join('')}</select></div>
+<div class="grid2"><div class="field">${sl('geo-unit','Unit')}<select id="geo-unit"><option>cm</option><option>m</option><option>mm</option><option>km</option><option>inch</option><option>ft</option><option value="">(none)</option></select></div>
+<div class="field">${sl('geo-pi','Value of π (as in your book)')}<select id="geo-pi">${opt([['exact','π (exact)'],['227','22/7'],['314','3.14']],'exact')}</select></div></div>
+<div class="field">${lab(2,'','Enter the measurements',1)}<p class="help" id="geo-note" hidden></p><div class="grid2" id="geo-inputs"></div></div>
+${go('geo',3)}</div><div class="out" id="geo-out" aria-live="polite"></div>`,
+stat:`<div class="card">${head('Σ','Statistics','Mean, median, mode, range and standard deviation.')}
+<div class="field">${lab(1,'stat-in','Type all the numbers here')}<textarea id="stat-in" class="tin math-in" autocomplete="off" placeholder="e.g. 12, 15, 11, 18">12, 15, 11, 18, 15, 20, 14</textarea><p class="help">Separate numbers with <b>,</b> or spaces — like a list of marks</p></div>
+${exs('stat-in',['5, 8, 8, 10, 12, 15','2.5, 3.5, 4, 4, 6','70 85 90 65 85 95 80 75'])}
+${go('stat',2)}</div><div class="out" id="stat-out" aria-live="polite"></div>`};
+const RUN={
+  calc:()=>{ANG=$('#calc-ang').value;return solveCalc($('#calc-in').value)},
+  eq:()=>solveEq($('#eq-in').value),
+  ineq:()=>solveIneq($('#iq-in').value),
+  alg:()=>solveAlgebra($('#al-op').value,$('#al-in').value),
+  sys:()=>solveSys(['#sys-1','#sys-2','#sys-3'].map(s=>$(s).value)),
+  calcu:()=>solveCalculus($('#cu-f').value,$('#cu-op').value,$('#cu-a').value,$('#cu-b').value),
+  mat:()=>solveMatrix($('#mat-op').value,$('#mat-a').value,$('#mat-b').value),
+  num:()=>solveNum($('#num-in').value),
+  hcf:()=>solveHcf($('#hcf-in').value),
+  ratio:()=>solveRatio($('#ra-mode').value,$('#ra-1').value,$('#ra-2').value),
+  seq:()=>solveSeq($('#seq-type').value,$('#seq-a').value,$('#seq-d').value,$('#seq-n').value),
+  pct:()=>solvePct($('#pct-mode').value,$('#pct-a').value,$('#pct-b').value),
+  int:()=>solveInt($('#int-type').value,$('#int-p').value,$('#int-r').value,$('#int-t').value,$('#int-n').value),
+  conv:()=>solveConv($('#cv-cat').value,$('#cv-from').value,$('#cv-to').value,$('#cv-v').value),
+  geo:()=>{const v={};document.querySelectorAll('#geo-inputs input').forEach(i=>v[i.dataset.k]=i.value);return solveGeo($('#geo-shape').value,v,$('#geo-unit').value,$('#geo-pi').value)},
+  stat:()=>solveStat($('#stat-in').value)};
+function renderRes(out,res){
+  const st=res.steps.map((s,i)=>`<li><span class="no">${i+1}</span><div class="sb"><div class="st">${s.t}</div>${s.m?`<div class="sm">${s.m}</div>`:''}${(s.lines||[]).map(l=>`<div class="sl">${l}</div>`).join('')}${s.n?`<div class="sn">${s.n}</div>`:''}${s.after?`<div class="sa">Now: <span class="math">${s.after}</span></div>`:''}</div></li>`).join('');
+  out.innerHTML=`<section class="answer"><div class="lbl"><span class="dot">✓</span>Your answer</div><div class="ans">${res.answer}</div>${res.sub?`<div class="ans-sub">${res.sub}</div>`:''}</section>
+<section class="sheet"><div class="sheet-h"><h3>Full solution · step by step</h3><button type="button" class="copy">Copy solution</button></div><ol class="steps">${st}</ol>${res.check&&res.check.length?`<div class="check"><div class="ck-h">✓ Check</div>${res.check.map(c=>`<div class="ck">${c}</div>`).join('')}</div>`:''}</section>`;
+  out.querySelector('.copy').addEventListener('click',e=>copyHal(out,e.currentTarget))}
+function renderErr(out,e){
+  const msg=e instanceof MErr?e.message:'This question could not be solved with this tool. Check it or write it another way.';
+  out.innerHTML=`<div class="err" role="alert"><b>No answer given — please check the question</b><p>${msg}</p></div>`}
+function toText(el){let out='';for(const ch of el.childNodes){if(ch.nodeType===3){out+=ch.nodeValue;continue}if(ch.nodeType!==1)continue;const c=ch.classList;if(c.contains('copy'))continue;
+  if(c.contains('frac')){const n=toText(ch.querySelector('.n')).trim(),d=toText(ch.querySelector('.d')).trim();const w=s=>/^[\w.√]+$/.test(s)?s:`(${s})`;out+=`${w(n)}/${w(d)}`;continue}
+  if(ch.tagName==='SUP'){const t=toText(ch);out+='^'+(t.length>1?`(${t})`:t);continue}
+  if(ch.tagName==='SUB'){out+='_'+toText(ch);continue}
+  if(ch.tagName==='BR'){out+='\n';continue}
+  if(c.contains('det')||c.contains('mat')){out+='['+[...ch.querySelectorAll('tr')].map(r=>[...r.cells].map(td=>toText(td).trim()).join(' ')).join('; ')+']';continue}
+  if(ch.tagName==='TD'||ch.tagName==='TH'){out+=toText(ch)+'  ';continue}
+  if(c.contains('no')){out+='\n'+toText(ch)+'. ';continue}
+  const blk=/^(DIV|LI|P|H3|TR|SECTION|OL|TABLE)$/.test(ch.tagName)&&!c.contains('sb');if(blk)out+='\n';out+=toText(ch);if(blk)out+='\n'}return out}
+async function copyHal(out,btn){
+  const txt=('Sahi Jawab — Math Solver\n'+toText(out)).replace(/ /g,' ').replace(/[ \t]+\n/g,'\n').replace(/\n{2,}/g,'\n').trim();
+  try{await navigator.clipboard.writeText(txt);btn.textContent='Copied ✓'}
+  catch(e){const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();btn.textContent=ok?'Copied ✓':'Copy failed'}
+  setTimeout(()=>btn.textContent='Copy solution',1800)}
+const done={};
+function run(id){const out=$('#'+id+'-out');try{renderRes(out,RUN[id]())}catch(e){renderErr(out,e);if(!(e instanceof MErr))console.error(e)}done[id]=true}
+let current=null;
+function openTool(id,push){
+  current=id;
+  TOOLS.forEach(t=>{$('#panel-'+t.id).hidden=t.id!==id});
+  $('#home').hidden=true;$('#toolbar').hidden=false;$('#guide').hidden=true;
+  const t=TOOLS.find(t=>t.id===id);$('#cur').innerHTML=`<span class="ti">${t.ic}</span>${t.name}`;
+  if(push){try{history.pushState({tool:id},'')}catch(_){}}
+  window.scrollTo(0,0);
+  if(!done[id])run(id)}
+function goHome(){current=null;TOOLS.forEach(t=>{$('#panel-'+t.id).hidden=true});$('#home').hidden=false;$('#toolbar').hidden=true;$('#guide').hidden=false;window.scrollTo(0,0)}
+function pctLabels(fill){const m=PCT_MODES[$('#pct-mode').value];$('#pct-al').textContent=m.a;$('#pct-bl').textContent=m.b;if(fill){$('#pct-a').value=m.ex[0];$('#pct-b').value=m.ex[1]}}
+function geoInputs(){const S=SHAPES[$('#geo-shape').value];$('#geo-inputs').innerHTML=S.inputs.map(([k,lb,def])=>`<div class="field"><label class="sublab" for="geo-${k}">${lb}</label><input id="geo-${k}" data-k="${k}" class="tin" inputmode="decimal" autocomplete="off" value="${def}"></div>`).join('');const nt=$('#geo-note');nt.hidden=!S.note;nt.textContent=S.note||''}
+function cuFields(){const op=$('#cu-op').value;$('#cu-ab').hidden=!['d1','d2','def','tan','val'].includes(op);$('#cu-bf').hidden=op!=='def';document.querySelector('label[for="cu-a"]').textContent=op==='def'?'Lower limit a':op==='tan'||op==='val'?'Point a':'Point a (optional — to also get a value)'}
+function matFields(){$('#mat-bf').hidden=!['mul','add','sub'].includes($('#mat-op').value)}
+function raFields(fill){const m=$('#ra-mode').value;const L={simp:null,prop:'c (first part of the second ratio)',div:'Total amount (to be shared)'}[m];$('#ra-2f').hidden=!L;if(L)document.querySelector('label[for="ra-2"]').innerHTML=`<span class="dot l">3</span>${L}`;if(fill){const ex={simp:['12 : 18 : 24',''],prop:['3 : 5','12'],div:['2 : 3 : 5','5000']}[m];$('#ra-1').value=ex[0];$('#ra-2').value=ex[1]}}
+function seqFields(fill){const gp=$('#seq-type').value==='gp';document.querySelector('label[for="seq-d"]').textContent=gp?'Common ratio (r)':'Common difference (d)';if(fill){$('#seq-a').value=gp?'2':'3';$('#seq-d').value=gp?'3':'4';$('#seq-n').value=gp?'8':'20'}}
+function cvUnits(){const C=UNITS[$('#cv-cat').value];const o=C.u.map(u=>`<option value="${u[0]}">${u[1]}</option>`).join('');$('#cv-from').innerHTML=o;$('#cv-to').innerHTML=o;const pick={length:['km','mi'],mass:['kg','lb'],area:['kanal','ft2'],volume:['gal','l'],time:['d','min'],speed:['kmh','ms'],temp:['c','f']}[$('#cv-cat').value];$('#cv-from').value=pick[0];$('#cv-to').value=pick[1]}
+function mount(){
+  $('#home').innerHTML=`<h2 class="home-h">What would you like to solve?</h2>`+GROUPS.map(g=>`<section class="grp"><h3>${g.name}</h3><div class="tgrid">${g.tools.map(t=>`<button type="button" class="tcard" data-open="${t.id}"><span class="ti">${t.ic}</span><b>${t.name}</b><small>${t.ur}</small></button>`).join('')}</div></section>`).join('');
+  $('#panels').innerHTML=TOOLS.map(t=>`<section class="panel" id="panel-${t.id}" hidden>${PANELS[t.id]}</section>`).join('');
+  pctLabels(true);geoInputs();cuFields();matFields();raFields(false);seqFields(false);cvUnits();
+  document.addEventListener('pointerdown',e=>{if(e.target.closest('.kbd button'))e.preventDefault()});
+  document.addEventListener('click',e=>{
+    const o=e.target.closest('[data-open]');if(o){openTool(o.dataset.open,true);return}
+    if(e.target.closest('#back')){if(history.state&&history.state.tool){try{history.back();return}catch(_){}}goHome();return}
+    const k=e.target.closest('.kbd button');
+    if(k){const grp=k.closest('.kbd');let inp=document.activeElement;if(!inp||!/^(INPUT|TEXTAREA)$/.test(inp.tagName)||inp.closest('.panel')!==grp.closest('.panel'))inp=document.getElementById(grp.dataset.for);const s=inp.selectionStart??inp.value.length,en=inp.selectionEnd??s;inp.setRangeText(k.dataset.ins,s,en,'end');inp.focus();return}
+    const f=e.target.closest('[data-fill]');if(f){document.getElementById(f.dataset.fill).value=f.dataset.val;run(f.closest('.panel').id.slice(6));return}
+    const sy=e.target.closest('[data-sys]');if(sy){JSON.parse(sy.dataset.sys).forEach((v,i)=>$('#sys-'+(i+1)).value=v);run('sys');return}
+    const g=e.target.closest('[data-run]');if(g){run(g.dataset.run);const ot=$('#'+g.dataset.run+'-out');if(ot.getBoundingClientRect().top>window.innerHeight*.7)ot.scrollIntoView({behavior:'smooth',block:'start'})}});
+  document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input.tin')){e.preventDefault();run(e.target.closest('.panel').id.slice(6))}});
+  window.addEventListener('popstate',e=>{if(e.state&&e.state.tool)openTool(e.state.tool,false);else goHome()});
+  const on=(sel,fn)=>$(sel).addEventListener('change',fn);
+  on('#pct-mode',()=>{pctLabels(true);run('pct')});
+  on('#geo-shape',()=>{geoInputs();run('geo')});
+  ['#geo-unit','#geo-pi'].forEach(s=>on(s,()=>run('geo')));
+  on('#int-type',()=>{$('#int-nf').hidden=$('#int-type').value==='si';run('int')});on('#int-n',()=>run('int'));
+  on('#calc-ang',()=>run('calc'));
+  on('#cu-op',()=>{cuFields();run('calcu')});
+  on('#mat-op',()=>{matFields();run('mat')});
+  on('#al-op',()=>{$('#al-in').value=$('#al-op').value==='exp'?'(x + 3)(x − 5)':'6x^2 + 11x − 10';run('alg')});
+  on('#ra-mode',()=>{raFields(true);run('ratio')});
+  on('#seq-type',()=>{seqFields(true);run('seq')});
+  on('#cv-cat',()=>{cvUnits();run('conv')});['#cv-from','#cv-to'].forEach(s=>on(s,()=>run('conv')));
+  goHome()}
+mount();
+</script>
+</body></html>
